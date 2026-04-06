@@ -679,13 +679,14 @@ select option{background:var(--card2);}
   </div>
 </div>
 
+
 <script>
 // ═══════════════════════════════════════
 // CONFIG — PREENCHA APÓS CRIAR O SUPABASE
 // ═══════════════════════════════════════
 const SUPABASE_URL = 'https://vsgrjlnlclseoaknnlmu.supabase.co';       // ex: https://xyzxyz.supabase.co
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzZ3JqbG5sY2xzZW9ha25ubG11Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0NDI0ODAsImV4cCI6MjA5MTAxODQ4MH0.km7tbk0NoquS_9S3tnpa3Tu0Rt_p13wNHAs1w4Rjbs4';  // anon/public key
-const PASS = '12edinei'; // senha do app — pode trocar
+const PASS = 'vbb2025'; // senha do app — pode trocar
 
 // ═══════════════════════════════════════
 // SUPABASE CLIENT
@@ -795,14 +796,16 @@ async function tryUnlock(){
     setTimeout(()=>err.textContent='', 2000);
   }
 }
-document.getElementById('pinInput').addEventListener('keydown', e => { if(e.key === 'Enter') tryUnlock(); });
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('pinInput').addEventListener('keydown', e => { if(e.key === 'Enter') tryUnlock(); });
 
-// Auto-unlock se já autenticado nesta sessão
-if(sessionStorage.getItem('vbb_auth') === '1'){
-  document.getElementById('lockScreen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  setTimeout(async ()=>{ await pullFromCloud(); initApp(); }, 50);
-}
+  // Auto-unlock se já autenticado nesta sessão
+  if(sessionStorage.getItem('vbb_auth') === '1'){
+    document.getElementById('lockScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    setTimeout(async ()=>{ await pullFromCloud(); initApp(); }, 50);
+  }
+});
 
 // ═══════════════════════════════════════
 // NAVIGATION
@@ -970,7 +973,7 @@ function filterTodo(f){
 
 function renderTodo(){
   const todos = load('todos', []);
-  const filtered = todos.filter(t => todoFilter==='all'|||(todoFilter==='done'&&t.done)||(todoFilter==='pending'&&!t.done));
+  const filtered = todos.filter(t => todoFilter==='all'||(todoFilter==='done'&&t.done)||(todoFilter==='pending'&&!t.done));
   const list = document.getElementById('todoList');
   if(filtered.length === 0){ list.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text2);font-size:13px;">Nenhuma tarefa aqui.</div>'; return; }
   list.innerHTML = filtered.map(t => `
@@ -1327,7 +1330,7 @@ const MATH_TOPICS = [
   ]},
   {week:'S8', mes:2, topic:'Vetores: módulo, vetor BA, combinação linear', meta:'Revisão geral Mês 2', dica:'Resolva a lista da faculdade do zero com gabarito.', sessao:[
     {fase:'0–15min',tag:'rev',label:'Revisão',desc:'Revisão S7 — operações vetoriais'},
-    {fase:'15–45min',tag:'theory',label:'Teoria',desc:'|v|, vetor BA = A-B, combinação linear'},
+    {fase:'15–45min',tag:'theory',label:'Teoria',desc:'módulo de v, vetor BA = A-B, combinação linear'},
     {fase:'45–80min',tag:'ex',label:'Exercícios',desc:'Lista completa — correção com gabarito'},
     {fase:'80–90min',tag:'cons',label:'Consolidação',desc:'Mapa de erros do Mês 2'},
   ]},
