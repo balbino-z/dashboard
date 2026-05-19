@@ -3,1285 +3,1951 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>VBB — Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>VBB — Dashboard Pessoal</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Epilogue:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
-:root{
-  --bg:#f4f2ed;--surface:#fff;--card:#fff;
-  --sidebar:#141414;--sb-text:#555;
-  --border:#e6e2da;--border2:#ccc8bf;
-  --text:#141414;--text2:#6b6560;--text3:#aaa49e;
-  --green:#2d5a27;--green-l:#e8f0e6;--green2:#4a8f42;
-  --gold:#b8963e;--gold-l:#faf3e0;
-  --blue:#2c4a7c;--blue-l:#e8eef8;
-  --rose:#8c3a3a;--rose-l:#f8eaea;
-  --purple:#4a2d7c;--purple-l:#eee8f8;
-  --orange:#8c5a1a;--orange-l:#faf0e0;
-  --red:#c0392b;--red-l:#fdf0ef;
-  --mono:'JetBrains Mono',monospace;
+:root {
+  --bg: #09090b;
+  --surface: #0f0f12;
+  --card: #141417;
+  --card2: #1a1a1f;
+  --border: #1f1f26;
+  --border2: #2a2a35;
+  --accent: #d4f53c;
+  --accent2: #9ab82a;
+  --blue: #3cc8f5;
+  --orange: #f59a3c;
+  --red: #f55c5c;
+  --green: #3cf5a0;
+  --purple: #b87af5;
+  --text: #e4e4f0;
+  --text2: #6b6b80;
+  --text3: #4a4a5a;
+  --mono: 'JetBrains Mono', monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html,body{height:100%;overflow:hidden;}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;display:flex;}
+html{scroll-behavior:smooth;height:100%;}
+body{background:var(--bg);color:var(--text);font-family:'Epilogue',sans-serif;min-height:100vh;overflow-x:hidden;}
 
-/* ══ LOCK ══ */
+/* ── LOCK SCREEN ── */
 #lockScreen{
-  position:fixed;inset:0;z-index:999;background:var(--sidebar);
+  position:fixed;inset:0;z-index:1000;
+  background:var(--bg);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:28px;padding:24px;
+  gap:32px;padding:24px;
 }
-.lk-logo{font-family:'Instrument Serif',serif;font-size:72px;color:#fff;line-height:1;}
-.lk-sub{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#444;}
-.lk-box{display:flex;flex-direction:column;gap:12px;width:100%;max-width:260px;}
-.lk-input{
-  padding:14px 18px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;
-  color:#fff;font-family:'DM Sans',sans-serif;font-size:18px;text-align:center;
-  letter-spacing:6px;outline:none;transition:border-color .2s;width:100%;
+.lock-logo{font-family:'Bebas Neue',sans-serif;font-size:72px;letter-spacing:4px;color:var(--accent);line-height:1;}
+.lock-sub{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--text2);}
+.lock-form{display:flex;flex-direction:column;align-items:center;gap:16px;width:100%;max-width:280px;}
+.lock-input{
+  width:100%;padding:14px 20px;background:var(--card);
+  border:1px solid var(--border2);border-radius:12px;
+  color:var(--text);font-family:'Epilogue',sans-serif;font-size:16px;
+  text-align:center;letter-spacing:6px;outline:none;
+  transition:border-color 0.2s;
 }
-.lk-input:focus{border-color:#fff;}
-.lk-btn{
-  padding:14px;background:#fff;border:none;border-radius:12px;
-  font-family:'Instrument Serif',serif;font-size:22px;color:#141414;
-  cursor:pointer;transition:opacity .2s;width:100%;
+.lock-input:focus{border-color:var(--accent);}
+.lock-btn{
+  width:100%;padding:14px;background:var(--accent);border:none;border-radius:12px;
+  font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;
+  color:var(--bg);cursor:pointer;transition:opacity 0.2s;
 }
-.lk-btn:hover{opacity:.85;}
-.lk-err{font-size:11px;color:#e06060;text-align:center;min-height:16px;}
+.lock-btn:hover{opacity:0.85;}
+.lock-error{font-size:12px;color:var(--red);letter-spacing:1px;height:16px;}
 
-/* ══ APP ══ */
-#app{display:none;width:100%;height:100vh;}
-.layout{display:flex;height:100vh;}
-
-/* ══ SIDEBAR ══ */
-.sidebar{
-  width:220px;flex-shrink:0;background:var(--sidebar);
-  height:100vh;display:flex;flex-direction:column;
-  overflow-y:auto;overflow-x:hidden;
-  position:fixed;left:0;top:0;bottom:0;z-index:50;
-  transition:transform .3s;
+/* ── NAV ── */
+#app{display:none;}
+.nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  background:rgba(9,9,11,0.95);backdrop-filter:blur(16px);
+  border-top:1px solid var(--border);
+  display:flex;height:64px;
+  padding-bottom:env(safe-area-inset-bottom);
 }
-.sb-brand{padding:20px 18px 16px;border-bottom:1px solid #1e1e1e;}
-.sb-name{font-family:'Instrument Serif',serif;font-size:20px;color:#fff;}
-.sb-sub{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#383838;margin-top:2px;}
-.sb-section{padding:12px 10px 4px;}
-.sb-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#2a2a2a;padding:0 8px;margin-bottom:4px;}
-.sb-item{
-  display:flex;align-items:center;gap:8px;padding:8px 10px;
-  border-radius:8px;cursor:pointer;font-size:12px;color:var(--sb-text);
-  border:none;background:none;width:100%;text-align:left;transition:background .12s,color .12s;
+.nav-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;border:none;background:none;cursor:pointer;
+  color:var(--text3);transition:color 0.2s;font-size:9px;
+  letter-spacing:1px;text-transform:uppercase;font-family:'Epilogue',sans-serif;
 }
-.sb-item:hover{background:#1e1e1e;color:#bbb;}
-.sb-item.active{background:#1e1e1e;color:#fff;}
-.sb-icon{width:16px;text-align:center;flex-shrink:0;font-size:13px;}
-.sb-badge{margin-left:auto;background:var(--green);color:#fff;font-size:8px;padding:1px 6px;border-radius:100px;}
+.nav-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;}
+.nav-btn.active{color:var(--accent);}
 
-.sb-bottom{margin-top:auto;padding:14px 16px 20px;border-top:1px solid #1a1a1a;}
-.sb-date-txt{font-size:11px;color:#333;line-height:1.7;}
-.sb-date-strong{color:#555;display:block;font-size:12px;}
-.sb-water-wrap{margin-top:10px;}
-.sb-water-lbl{font-size:9px;color:#333;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
-.sb-cups{display:flex;gap:3px;flex-wrap:wrap;}
-.sw-cup{
-  width:13px;height:16px;border-radius:0 0 3px 3px;border-top:none;
-  border:1px solid #2a2a2a;background:#1a1a1a;cursor:pointer;
-  position:relative;transition:background .12s,border-color .12s;
-}
-.sw-cup::before{
-  content:'';position:absolute;top:-3px;left:-1px;right:-1px;height:3px;
-  border:1px solid #2a2a2a;border-radius:2px 2px 0 0;border-bottom:none;
-}
-.sw-cup.on{background:#2c5f8a;border-color:#4a88bb;}
-.sw-cup.on::before{border-color:#4a88bb;}
-
-/* ══ MAIN ══ */
-.main{margin-left:220px;flex:1;height:100vh;overflow-y:auto;padding:26px 26px 70px;}
-
-/* ══ PAGE ══ */
-.page{display:none;}
+/* ── PAGES ── */
+.page{display:none;padding:20px 16px 84px;max-width:720px;margin:0 auto;}
 .page.active{display:block;}
 
-/* ══ PAGE HEADER ══ */
-.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap;}
-.ph-left h1{font-family:'Instrument Serif',serif;font-size:clamp(24px,3vw,34px);font-weight:400;line-height:1.05;}
-.ph-left h1 em{color:var(--green);font-style:italic;}
-.ph-sub{font-size:11px;color:var(--text2);margin-top:3px;}
-.ph-right{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+/* ── SHARED COMPONENTS ── */
+.page-header{margin-bottom:24px;}
+.page-eyebrow{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--accent);margin-bottom:6px;}
+.page-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,9vw,56px);letter-spacing:1px;line-height:0.95;}
+.page-title em{color:var(--accent);font-style:normal;}
 
-/* ══ STAT ROW ══ */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
-.s-box{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:13px 14px;position:relative;overflow:hidden;}
-.s-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
-.s-green::before{background:var(--green);}
-.s-blue::before{background:var(--blue);}
-.s-gold::before{background:var(--gold);}
-.s-rose::before{background:var(--rose);}
-.s-purple::before{background:var(--purple);}
-.s-val{font-family:'Instrument Serif',serif;font-size:26px;line-height:1;margin-bottom:2px;}
-.s-lbl{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--text2);}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:12px;}
+.card-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;margin-bottom:12px;color:var(--text);display:flex;align-items:center;gap:8px;}
 
-/* ══ GRID ══ */
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:13px;}
-.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
-.gc2{grid-column:span 2;}
-.mb14{margin-bottom:14px;}
-
-/* ══ CARDS ══ */
-.card{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:17px 19px;transition:box-shadow .15s;}
-.card:hover{box-shadow:0 3px 14px rgba(0,0,0,.05);}
-.ct{font-family:'Instrument Serif',serif;font-size:16px;font-weight:400;margin-bottom:12px;display:flex;align-items:center;gap:7px;}
-
-/* ══ PILLS ══ */
-.pill{display:inline-block;padding:2px 8px;border-radius:100px;font-size:10px;font-weight:500;}
-.p-g{background:var(--green-l);color:var(--green);}
-.p-gd{background:var(--gold-l);color:var(--gold);}
-.p-b{background:var(--blue-l);color:var(--blue);}
-.p-r{background:var(--rose-l);color:var(--rose);}
-.p-p{background:var(--purple-l);color:var(--purple);}
-.p-o{background:var(--orange-l);color:var(--orange);}
-.p-d{background:#f0f0f0;color:#333;}
-.p-rd{background:var(--red-l);color:var(--red);}
-
-/* ══ BTNS ══ */
-.btn{padding:7px 15px;border-radius:8px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;transition:opacity .15s;}
-.btn-g{background:var(--green);color:#fff;}
-.btn-gh{background:var(--bg);color:var(--text2);border:1px solid var(--border2);}
-.btn-sm{padding:5px 10px;font-size:11px;}
-.btn:active{opacity:.8;}
-
-/* ══ INPUTS ══ */
-input,textarea,select{
-  width:100%;padding:8px 11px;background:var(--bg);border:1px solid var(--border2);
-  border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;
-  outline:none;transition:border-color .15s;
+.btn{
+  padding:10px 18px;border-radius:10px;border:none;cursor:pointer;
+  font-family:'Epilogue',sans-serif;font-size:13px;font-weight:600;
+  transition:opacity 0.2s,transform 0.1s;
 }
-input:focus,textarea:focus,select:focus{border-color:var(--green);}
-textarea{resize:vertical;min-height:60px;}
+.btn:active{transform:scale(0.97);}
+.btn-primary{background:var(--accent);color:var(--bg);}
+.btn-ghost{background:var(--card2);color:var(--text2);border:1px solid var(--border2);}
+.btn-red{background:rgba(245,92,92,0.15);color:var(--red);border:1px solid rgba(245,92,92,0.2);}
+.btn-sm{padding:6px 12px;font-size:11px;}
 
-hr.div{border:none;border-top:1px solid var(--border);margin:12px 0;}
+input[type=text],input[type=number],textarea,select{
+  width:100%;padding:10px 14px;background:var(--card2);
+  border:1px solid var(--border2);border-radius:10px;
+  color:var(--text);font-family:'Epilogue',sans-serif;font-size:14px;
+  outline:none;transition:border-color 0.2s;
+}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);}
+textarea{resize:vertical;min-height:80px;}
+select option{background:var(--card2);}
 
-/* ══ TIMELINE ══ */
-.tl{position:relative;padding-left:12px;}
-.tl::before{content:'';position:absolute;left:0;top:0;bottom:0;width:1.5px;background:var(--border2);}
-.tl-row{position:relative;display:flex;gap:10px;padding:0 0 13px 16px;align-items:flex-start;}
-.tl-row:last-child{padding-bottom:0;}
-.tl-dot{position:absolute;left:-4px;top:4px;width:8px;height:8px;border-radius:50%;border:2px solid var(--bg);flex-shrink:0;}
-.tl-t{font-family:var(--mono);font-size:10px;color:var(--text3);min-width:38px;flex-shrink:0;padding-top:1px;}
-.tl-bd{flex:1;}
-.tl-n{font-size:12px;font-weight:500;color:var(--text);}
-.tl-c{font-size:10px;color:var(--text3);margin-top:1px;}
-.tl-row.now .tl-n{color:var(--green);}
-.new-tag{display:inline;margin-left:4px;font-size:8px;background:var(--green-l);color:var(--green);padding:0 4px;border-radius:100px;font-weight:600;vertical-align:middle;}
+.pill{display:inline-block;padding:3px 10px;border-radius:100px;font-size:10px;letter-spacing:0.5px;}
+.pill-green{background:rgba(60,245,160,0.1);color:var(--green);border:1px solid rgba(60,245,160,0.2);}
+.pill-orange{background:rgba(245,154,60,0.1);color:var(--orange);border:1px solid rgba(245,154,60,0.2);}
+.pill-blue{background:rgba(60,200,245,0.1);color:var(--blue);border:1px solid rgba(60,200,245,0.2);}
+.pill-red{background:rgba(245,92,92,0.1);color:var(--red);border:1px solid rgba(245,92,92,0.2);}
+.pill-accent{background:rgba(212,245,60,0.1);color:var(--accent);border:1px solid rgba(212,245,60,0.2);}
 
-/* ══ TODO ══ */
-.todo-row{display:flex;align-items:flex-start;gap:8px;padding:9px 11px;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:6px;}
-.todo-row.done{opacity:.42;}
-.todo-row.done .todo-txt{text-decoration:line-through;color:var(--text3);}
-.pri-bar{width:4px;border-radius:2px;align-self:stretch;flex-shrink:0;}
-.cb{width:17px;height:17px;border-radius:50%;border:1.5px solid var(--border2);background:none;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;transition:all .12s;margin-top:1px;}
-.cb.on{background:var(--green);border-color:var(--green);color:#fff;}
-.todo-txt{flex:1;font-size:12px;line-height:1.4;color:var(--text);}
-.todo-cat{font-size:9px;color:var(--text3);}
-.ib{width:24px;height:24px;border-radius:6px;border:1px solid var(--border);background:none;cursor:pointer;color:var(--text3);display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .12s;}
-.ib:hover{background:var(--bg);color:var(--text);}
-.ib.del:hover{background:var(--red-l);color:var(--red);}
+.divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
 
-/* ══ MEAL ══ */
-.meal-hd{display:flex;align-items:center;gap:9px;cursor:pointer;}
-.meal-t{font-family:var(--mono);font-size:14px;color:var(--green);min-width:48px;flex-shrink:0;}
-.meal-n{font-size:13px;font-weight:500;color:var(--text);}
-.meal-k{font-size:10px;color:var(--text3);}
-.meal-tog{margin-left:auto;font-size:11px;color:var(--text3);transition:transform .2s;}
-.meal-bd{display:none;margin-top:11px;padding-top:11px;border-top:1px solid var(--border);}
+/* ── DASHBOARD ── */
+.dash-greeting{
+  margin-bottom:20px;
+  padding:20px;
+  background:linear-gradient(135deg,rgba(212,245,60,0.07),rgba(212,245,60,0.02));
+  border:1px solid rgba(212,245,60,0.15);border-radius:18px;
+}
+.dash-name{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--accent);letter-spacing:2px;}
+.dash-date{font-size:12px;color:var(--text2);margin-top:2px;}
+
+.dash-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px;}
+.stat-card{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:16px 14px;text-align:center;position:relative;overflow:hidden;
+}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.sc-a::before{background:var(--accent);}
+.sc-b::before{background:var(--blue);}
+.sc-o::before{background:var(--orange);}
+.sc-g::before{background:var(--green);}
+.stat-val{font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:1;}
+.sc-a .stat-val{color:var(--accent);}
+.sc-b .stat-val{color:var(--blue);}
+.sc-o .stat-val{color:var(--orange);}
+.sc-g .stat-val{color:var(--green);}
+.stat-label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-top:3px;}
+
+.water-track{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px;}
+.wcup{
+  width:24px;height:30px;border-radius:0 0 5px 5px;border-top:none;
+  border:1.5px solid rgba(60,200,245,0.2);background:rgba(60,200,245,0.04);
+  position:relative;cursor:pointer;transition:background 0.15s,border-color 0.15s;
+}
+.wcup::before{
+  content:'';position:absolute;top:-4px;left:-2px;right:-2px;height:4px;
+  border:1.5px solid rgba(60,200,245,0.2);border-radius:4px 4px 0 0;border-bottom:none;
+}
+.wcup.on{background:rgba(60,200,245,0.25);border-color:var(--blue);}
+.wcup.on::before{border-color:var(--blue);}
+
+/* ── TODO ── */
+.todo-input-row{display:flex;gap:8px;margin-bottom:16px;}
+.todo-input-row input{flex:1;}
+.todo-item{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:12px 14px;background:var(--card);border:1px solid var(--border);
+  border-radius:12px;margin-bottom:8px;transition:opacity 0.2s;
+}
+.todo-item.done{opacity:0.45;}
+.todo-item.done .todo-text{text-decoration:line-through;color:var(--text2);}
+.todo-check{
+  width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border2);
+  background:none;cursor:pointer;flex-shrink:0;margin-top:1px;
+  display:flex;align-items:center;justify-content:center;
+  transition:background 0.15s,border-color 0.15s;
+}
+.todo-check.on{background:var(--accent);border-color:var(--accent);}
+.todo-check.on::after{content:'✓';font-size:11px;color:var(--bg);font-weight:700;}
+.todo-text{flex:1;font-size:14px;line-height:1.4;color:var(--text);}
+.todo-actions{display:flex;gap:6px;flex-shrink:0;}
+.icon-btn{
+  width:28px;height:28px;border-radius:8px;border:1px solid var(--border2);
+  background:none;cursor:pointer;color:var(--text2);
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+  transition:background 0.15s,color 0.15s;
+}
+.icon-btn:hover{background:var(--card2);color:var(--text);}
+.icon-btn.del:hover{background:rgba(245,92,92,0.1);color:var(--red);}
+.todo-priority{
+  width:6px;border-radius:3px;flex-shrink:0;align-self:stretch;min-height:20px;
+}
+.p-alta{background:var(--red);}
+.p-media{background:var(--orange);}
+.p-baixa{background:var(--green);}
+
+/* ── ROTINA ── */
+.rotina-day-tabs{display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px;}
+.day-tab{
+  padding:7px 14px;border-radius:100px;border:1px solid var(--border2);
+  background:none;color:var(--text2);cursor:pointer;font-family:'Epilogue',sans-serif;
+  font-size:11px;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;
+  transition:all 0.2s;
+}
+.day-tab.active{background:rgba(212,245,60,0.1);border-color:rgba(212,245,60,0.3);color:var(--accent);}
+
+.rotina-block{
+  display:flex;gap:14px;padding:12px 14px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:12px;margin-bottom:8px;align-items:flex-start;
+}
+.rotina-time{
+  font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--accent);
+  letter-spacing:1px;min-width:52px;flex-shrink:0;padding-top:2px;
+}
+.rotina-content{flex:1;}
+.rotina-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.rotina-cat{font-size:10px;color:var(--text2);}
+.rotina-dot{
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:6px;
+}
+.cat-sono{background:#7a9fff;}
+.cat-trabalho{background:var(--orange);}
+.cat-math{background:var(--accent);}
+.cat-academia{background:var(--red);}
+.cat-faculdade{background:var(--purple);}
+.cat-carreira{background:var(--blue);}
+.cat-livre{background:var(--text3);}
+.cat-refeicao{background:var(--green);}
+
+/* ── TREINO ── */
+.treino-phase-bar{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;
+}
+.phase-pill{
+  padding:10px 8px;border-radius:12px;text-align:center;
+  border:1px solid var(--border);background:var(--card);cursor:pointer;
+  transition:all 0.2s;
+}
+.phase-pill.active{border-color:rgba(212,245,60,0.4);background:rgba(212,245,60,0.07);}
+.phase-pill-num{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:2px;}
+.phase-pill-name{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;color:var(--text);}
+.phase-pill.active .phase-pill-name{color:var(--accent);}
+
+.treino-day-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;margin-bottom:10px;overflow:hidden;
+}
+.treino-day-hd{
+  display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;
+}
+.treino-day-dia{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;color:var(--text2);min-width:56px;}
+.treino-day-nome{font-size:14px;font-weight:600;color:var(--text);flex:1;}
+.treino-day-tog{font-size:12px;color:var(--text2);transition:transform 0.2s;}
+.treino-day-card.open .treino-day-tog{transform:rotate(180deg);}
+.treino-day-body{display:none;border-top:1px solid var(--border);}
+.treino-day-card.open .treino-day-body{display:block;}
+
+.ex-row{
+  display:grid;grid-template-columns:1fr auto auto;gap:8px;
+  align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);
+}
+.ex-row:last-child{border-bottom:none;}
+.ex-name{font-size:13px;color:var(--text);}
+.ex-detail{font-size:11px;color:var(--text2);margin-top:2px;}
+.ex-series{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);text-align:center;}
+.ex-log-btn{
+  padding:5px 10px;border-radius:8px;border:1px solid var(--border2);
+  background:none;color:var(--accent);font-size:11px;cursor:pointer;
+  font-family:'Epilogue',sans-serif;transition:background 0.15s;
+}
+.ex-log-btn:hover{background:rgba(212,245,60,0.08);}
+
+/* LOG MODAL */
+.modal-overlay{
+  position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.7);
+  backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center;
+  padding:16px;display:none;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--card2);border:1px solid var(--border2);border-radius:20px 20px 16px 16px;
+  padding:24px;width:100%;max-width:440px;
+  animation:slideUp 0.25s ease;
+}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;margin-bottom:16px;color:var(--accent);}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.modal-field label{font-size:11px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px;}
+.modal-actions{display:flex;gap:8px;}
+
+/* ── MATH ── */
+.math-week-progress{
+  display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:20px;
+}
+.math-day-dot{
+  aspect-ratio:1;border-radius:6px;
+  border:1px solid var(--border);background:var(--card);
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;color:var(--text2);letter-spacing:0;cursor:pointer;
+  transition:all 0.15s;font-family:'Bebas Neue',sans-serif;
+}
+.math-day-dot.done{background:rgba(212,245,60,0.15);border-color:rgba(212,245,60,0.4);color:var(--accent);}
+.math-day-dot.today{border-color:var(--accent);box-shadow:0 0 0 2px rgba(212,245,60,0.2);}
+
+.math-topic{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  margin-bottom:10px;overflow:hidden;
+}
+.math-topic-hd{
+  display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;
+}
+.math-week-badge{
+  font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:2px;
+  color:var(--text2);min-width:28px;
+}
+.math-topic-name{font-size:14px;font-weight:600;color:var(--text);flex:1;}
+.math-topic-status{font-size:11px;}
+.math-topic-body{display:none;border-top:1px solid var(--border);padding:14px 16px;}
+.math-topic.open .math-topic-body{display:block;}
+.math-topic.done-topic .math-topic-name{color:var(--text2);}
+
+.session-timer{
+  background:rgba(212,245,60,0.05);border:1px solid rgba(212,245,60,0.15);
+  border-radius:12px;padding:16px;margin-bottom:14px;text-align:center;
+}
+.timer-display{
+  font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--accent);
+  letter-spacing:4px;line-height:1;
+}
+.timer-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:12px;}
+.timer-btns{display:flex;gap:8px;justify-content:center;}
+
+.study-block{
+  display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);
+  font-size:13px;color:var(--text2);align-items:flex-start;
+}
+.study-block:last-child{border-bottom:none;}
+.study-phase-tag{
+  font-size:9px;letter-spacing:1px;padding:3px 8px;border-radius:100px;
+  white-space:nowrap;flex-shrink:0;
+}
+.sp-rev{background:rgba(60,200,245,0.1);color:var(--blue);}
+.sp-theory{background:rgba(212,245,60,0.1);color:var(--accent);}
+.sp-ex{background:rgba(245,154,60,0.1);color:var(--orange);}
+.sp-cons{background:rgba(60,245,160,0.1);color:var(--green);}
+
+/* ── DIETA ── */
+.meal-card{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  margin-bottom:10px;overflow:hidden;
+}
+.meal-hd{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;}
+.meal-time-badge{
+  font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--accent);
+  letter-spacing:1px;min-width:54px;
+}
+.meal-info{flex:1;}
+.meal-name-d{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.meal-kcal-d{font-size:11px;color:var(--text2);}
+.meal-tog{font-size:12px;color:var(--text2);transition:transform 0.2s;}
 .meal-card.open .meal-tog{transform:rotate(180deg);}
-.meal-card.open .meal-bd{display:block;}
-.food-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px;gap:6px;}
-.food-row:last-of-type{border:none;}
-.fn{color:var(--text);flex:1;}
-.fq{color:var(--text3);font-size:10px;}
-.fk{color:var(--green2);font-weight:500;}
-.m-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px;}
-.mch{font-size:9px;padding:2px 7px;border-radius:100px;background:var(--bg);border:1px solid var(--border2);color:var(--text2);}
-
-/* ══ TREINO ══ */
-.tr-day{background:var(--card);border:1px solid var(--border);border-radius:13px;margin-bottom:9px;overflow:hidden;}
-.tr-hd{display:flex;align-items:center;gap:10px;padding:12px 15px;cursor:pointer;}
-.tr-dia{font-family:var(--mono);font-size:10px;color:var(--text3);min-width:52px;letter-spacing:1px;text-transform:uppercase;}
-.tr-nm{font-size:13px;font-weight:500;color:var(--text);flex:1;}
-.tr-tog{font-size:11px;color:var(--text3);transition:transform .2s;}
-.tr-day.open .tr-tog{transform:rotate(180deg);}
-.tr-bd{display:none;border-top:1px solid var(--border);padding:12px 15px;}
-.tr-day.open .tr-bd{display:block;}
-.ex-r{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);}
-.ex-r:last-child{border:none;}
-.ex-nm{flex:1;font-size:12px;color:var(--text);}
-.ex-info{font-family:var(--mono);font-size:10px;color:var(--text3);}
-.ex-last-val{font-size:10px;color:var(--green);font-weight:500;}
-.ex-lb{padding:3px 8px;border-radius:7px;border:1px solid var(--border2);background:none;color:var(--green);font-size:10px;cursor:pointer;font-family:'DM Sans',sans-serif;}
-
-/* ══ MATH ══ */
-.timer-box{background:var(--sidebar);border-radius:13px;padding:18px;text-align:center;color:#fff;margin-bottom:12px;}
-.timer-num{font-family:'Instrument Serif',serif;font-size:48px;line-height:1;letter-spacing:2px;}
-.timer-ph{font-size:10px;color:#555;margin:5px 0 12px;letter-spacing:1px;}
-.math-wk{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;margin-bottom:14px;}
-.mw-dot{aspect-ratio:1;border-radius:5px;border:1px solid var(--border);background:var(--card);display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--text3);cursor:pointer;font-family:var(--mono);}
-.mw-dot.done{background:var(--green-l);border-color:var(--green);color:var(--green);}
-.math-topic{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden;}
-.mt-hd{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;}
-.mt-wk{font-family:var(--mono);font-size:10px;color:var(--text3);min-width:24px;}
-.mt-nm{font-size:13px;font-weight:500;color:var(--text);flex:1;}
-.mt-bd{display:none;border-top:1px solid var(--border);padding:12px 14px;font-size:11px;color:var(--text2);line-height:1.6;}
-.math-topic.open .mt-bd{display:block;}
-.study-row{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);}
-.study-row:last-child{border:none;}
-
-/* ══ CAREER ══ */
-.career-path{display:flex;margin-bottom:16px;overflow-x:auto;gap:0;}
-.cp-nd{
-  flex:1;min-width:110px;padding:12px 10px;text-align:center;
-  border:1px solid var(--border);background:var(--card);border-right:none;
+.meal-body-d{display:none;border-top:1px solid var(--border);padding:14px 16px;}
+.meal-card.open .meal-body-d{display:block;}
+.food-line{
+  display:flex;justify-content:space-between;align-items:baseline;
+  padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;gap:8px;
 }
-.cp-nd:first-child{border-radius:12px 0 0 12px;}
-.cp-nd:last-child{border-radius:0 12px 12px 0;border-right:1px solid var(--border);}
-.cp-nd.cp-now{background:var(--green-l);border-color:var(--green);border-right:none;}
-.cp-nd.cp-now:last-child{border-right:1px solid var(--green);}
-.cp-yr{font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;}
-.cp-tl{font-family:'Instrument Serif',serif;font-size:12px;color:var(--text);}
-.cp-sl{font-size:10px;color:var(--green);font-weight:600;margin-top:2px;}
-.cp-nd.cp-now .cp-tl{color:var(--green);}
+.food-line:last-of-type{border-bottom:none;}
+.food-n{color:var(--text);flex:1;}
+.food-q{color:var(--text2);font-size:11px;white-space:nowrap;}
+.food-k{color:var(--accent2);font-size:12px;font-weight:500;white-space:nowrap;}
+.macro-chips{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+.mchip{font-size:10px;padding:3px 9px;border-radius:100px;background:var(--card2);border:1px solid var(--border2);color:var(--text2);}
+.mchip b{color:var(--text);}
 
-.mkt-bar{margin-bottom:9px;}
-.mkt-lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:3px;}
-.mkt-track{height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
-.mkt-fill{height:100%;border-radius:3px;background:var(--green);}
-
-/* ══ VOCAB ══ */
-.vw{padding:11px 0;border-bottom:1px solid var(--border);}
-.vw:last-child{border:none;}
-.vw-term{font-family:'Instrument Serif',serif;font-style:italic;font-size:14px;color:var(--text);}
-.vw-cls{font-size:9px;color:var(--gold);letter-spacing:1px;text-transform:uppercase;font-weight:600;margin:3px 0;}
-.vw-def{font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:3px;}
-.vw-ex{font-size:10px;color:var(--text3);font-style:italic;border-left:2px solid var(--border2);padding-left:6px;line-height:1.4;}
-
-.fq-box{background:var(--gold-l);border:1px solid #e8d8a0;border-radius:11px;padding:13px;margin-bottom:10px;}
-.fq-text{font-family:'Instrument Serif',serif;font-style:italic;font-size:13px;line-height:1.5;margin-bottom:5px;}
-.fq-auth{font-size:9px;color:var(--gold);font-weight:600;letter-spacing:1px;}
-.fq-ctx{font-size:11px;color:var(--text2);line-height:1.5;margin-top:6px;}
-
-.arte-dk{background:linear-gradient(135deg,#141414,#1e1e1e);border-radius:11px;padding:13px;color:#fff;margin-bottom:10px;}
-.arte-tag{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:#444;margin-bottom:5px;}
-.arte-tl{font-family:'Instrument Serif',serif;font-size:15px;margin-bottom:3px;}
-.arte-sub{font-size:10px;color:#555;margin-bottom:9px;}
-.arte-fact{font-size:11px;color:#666;line-height:1.5;border-top:1px solid #222;padding-top:9px;}
-
-/* ══ STAR ══ */
-.star-entry{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:11px;margin-bottom:7px;}
-.star-date{font-size:10px;color:var(--text3);margin-bottom:5px;}
-.star-body{font-size:11px;color:var(--text2);line-height:1.6;}
-
-/* ══ WF STEP ══ */
-.wf-step{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);align-items:flex-start;}
-.wf-step:last-child{border:none;}
-.wf-n{width:22px;height:22px;border-radius:50%;background:var(--sidebar);color:#fff;font-size:9px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;font-family:var(--mono);}
-.wf-ttl{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px;}
-.wf-desc{font-size:11px;color:var(--text2);line-height:1.5;}
-
-/* ══ MODAL ══ */
-.modal-ov{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center;padding:16px;}
-.modal-ov.open{display:flex;}
-.modal{background:var(--card);border:1px solid var(--border2);border-radius:18px 18px 14px 14px;padding:22px;width:100%;max-width:420px;animation:slideUp .22s ease;}
-@keyframes slideUp{from{transform:translateY(30px);opacity:0;}to{transform:translateY(0);opacity:1;}}
-.modal-title{font-family:'Instrument Serif',serif;font-size:18px;margin-bottom:14px;color:var(--green);}
-.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px;}
-.mf label{font-size:10px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px;}
-.modal-btns{display:flex;gap:8px;}
-
-/* ══ SYNC BADGE ══ */
-#syncBadge{position:fixed;bottom:14px;right:14px;z-index:300;background:rgba(20,20,20,.92);border:1px solid #2a2a2a;border-radius:8px;padding:5px 12px;font-size:10px;letter-spacing:1px;color:#aaa;pointer-events:none;transition:opacity .4s;opacity:0;}
-#cloudBtn{position:fixed;top:12px;right:14px;z-index:300;width:34px;height:34px;border-radius:50%;background:var(--card);border:1px solid var(--border2);color:var(--text3);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:color .2s;display:none;}
-
-/* ══ HAMBURGER ══ */
-.hmb{display:none;position:fixed;top:12px;left:12px;z-index:200;width:34px;height:34px;border-radius:8px;background:var(--sidebar);border:none;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
-.hmb span{width:14px;height:1.5px;background:#fff;border-radius:1px;}
-
-@media(max-width:768px){
-  .sidebar{transform:translateX(-220px);}
-  .sidebar.open{transform:translateX(0);}
-  .main{margin-left:0;padding:16px 14px 80px;}
-  .hmb{display:flex;}
-  #cloudBtn{display:flex;}
-  .stats-row{grid-template-columns:1fr 1fr;}
-  .g2,.g3{grid-template-columns:1fr;}
-  .gc2{grid-column:span 1;}
-  .g4{grid-template-columns:1fr 1fr;}
-  .career-path{flex-direction:column;gap:4px;}
-  .cp-nd{border-radius:10px!important;border:1px solid var(--border)!important;}
-  .math-wk{grid-template-columns:repeat(6,1fr);}
+/* ── CARREIRA ── */
+.career-pillar{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  margin-bottom:10px;overflow:hidden;
 }
-@media(min-width:769px){
-  #cloudBtn{display:flex;}
+.career-pillar-hd{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;}
+.pillar-num{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--accent);min-width:28px;}
+.pillar-name{font-size:14px;font-weight:600;color:var(--text);flex:1;}
+.career-pillar-body{display:none;border-top:1px solid var(--border);padding:14px 16px;font-size:13px;color:var(--text2);line-height:1.7;}
+.career-pillar.open .career-pillar-body{display:block;}
+.career-pillar-hd-tog{font-size:12px;color:var(--text2);transition:transform 0.2s;}
+.career-pillar.open .career-pillar-hd-tog{transform:rotate(180deg);}
+
+.star-form{background:var(--card2);border:1px solid var(--border2);border-radius:12px;padding:14px;margin-top:12px;}
+.star-form-title{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;}
+.star-row{margin-bottom:10px;}
+.star-row label{font-size:11px;color:var(--text2);display:block;margin-bottom:4px;}
+.star-entry{
+  background:var(--card);border:1px solid var(--border2);border-radius:10px;
+  padding:10px 12px;margin-bottom:6px;
+}
+.star-entry-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.star-entry-text{font-size:11px;color:var(--text2);line-height:1.5;}
+
+/* ── RESPONSIVE ── */
+@media(min-width:600px){
+  .page{padding:24px 24px 84px;}
+  .dash-stats{grid-template-columns:repeat(4,1fr);}
+  .modal-overlay{align-items:center;}
+  .modal{border-radius:20px;}
 }
 </style>
 </head>
 <body>
 
-<!-- LOCK -->
+<!-- LOCK SCREEN -->
 <div id="lockScreen">
-  <div class="lk-logo">VBB</div>
-  <div class="lk-sub">Dashboard Pessoal · Vinícius</div>
-  <div class="lk-box">
-    <input class="lk-input" type="password" id="pinInput" placeholder="••••••" maxlength="20" autocomplete="off">
-    <button class="lk-btn" onclick="tryUnlock()">Entrar</button>
-    <div class="lk-err" id="lkErr"></div>
+  <div>
+    <div class="lock-logo">VBB</div>
+    <div class="lock-sub">Dashboard Pessoal · Vinícius</div>
+  </div>
+  <div class="lock-form">
+    <input class="lock-input" type="password" id="pinInput" placeholder="••••" maxlength="7" autocomplete="off">
+    <button class="lock-btn" onclick="tryUnlock()">ENTRAR</button>
+    <div class="lock-error" id="lockError"></div>
   </div>
 </div>
 
 <!-- APP -->
 <div id="app">
-<div class="layout">
 
-<!-- SIDEBAR -->
-<aside class="sidebar" id="sidebar">
-  <div class="sb-brand">
-    <div class="sb-name">Vinícius</div>
-    <div class="sb-sub">Dashboard · 2025</div>
-  </div>
+  <!-- PAGES -->
 
-  <div class="sb-section">
-    <div class="sb-lbl">Principal</div>
-    <button class="sb-item active" onclick="goPage('dash',this)"><span class="sb-icon">⊞</span>Início</button>
-    <button class="sb-item" onclick="goPage('todo',this)"><span class="sb-icon">✓</span>Tarefas <span class="sb-badge" id="sbTodoBadge">0</span></button>
-    <button class="sb-item" onclick="goPage('rotina',this)"><span class="sb-icon">⏱</span>Rotina</button>
-  </div>
-  <div class="sb-section">
-    <div class="sb-lbl">Saúde</div>
-    <button class="sb-item" onclick="goPage('treino',this)"><span class="sb-icon">◈</span>Treino</button>
-    <button class="sb-item" onclick="goPage('dieta',this)"><span class="sb-icon">◎</span>Dieta</button>
-  </div>
-  <div class="sb-section">
-    <div class="sb-lbl">Mente</div>
-    <button class="sb-item" onclick="goPage('math',this)"><span class="sb-icon">∑</span>Matemática</button>
-    <button class="sb-item" onclick="goPage('cultura',this)"><span class="sb-icon">◉</span>Capital Cultural</button>
-    <button class="sb-item" onclick="goPage('vocab',this)"><span class="sb-icon">∆</span>Vocabulário</button>
-    <button class="sb-item" onclick="goPage('ia',this)"><span class="sb-icon">⚡</span>Workflow IA</button>
-  </div>
-  <div class="sb-section">
-    <div class="sb-lbl">Profissional</div>
-    <button class="sb-item" onclick="goPage('carreira',this)"><span class="sb-icon">↗</span>Carreira</button>
-  </div>
-
-  <div class="sb-bottom">
-    <div class="sb-date-txt"><span class="sb-date-strong" id="sbDay"></span><span id="sbDate"></span></div>
-    <div class="sb-water-wrap">
-      <div class="sb-water-lbl">Água hoje</div>
-      <div class="sb-cups" id="sbCups"></div>
+  <!-- ── DASHBOARD ── -->
+  <div class="page active" id="p-dash">
+    <div class="dash-greeting">
+      <div class="dash-name">E AÍ, VINÍCIUS 👊</div>
+      <div class="dash-date" id="dashDate"></div>
     </div>
-  </div>
-</aside>
 
-<!-- MAIN -->
-<main class="main">
-
-<!-- ══ DASHBOARD ══ -->
-<div class="page active" id="page-dash">
-  <div class="ph">
-    <div class="ph-left">
-      <h1>Bom dia, <em>Vinícius</em></h1>
-      <div class="ph-sub" id="dashSub"></div>
-    </div>
-  </div>
-  <div class="stats-row mb14">
-    <div class="s-box s-green"><div class="s-val" id="dsTodo" style="color:var(--green)">0</div><div class="s-lbl">Tarefas pendentes</div></div>
-    <div class="s-box s-blue"><div class="s-val" id="dsAgua" style="color:var(--blue)">0</div><div class="s-lbl">Copos de água</div></div>
-    <div class="s-box s-gold"><div class="s-val" id="dsMath" style="color:var(--gold)">0</div><div class="s-lbl">Semanas math</div></div>
-    <div class="s-box s-rose"><div class="s-val" id="dsTreino" style="color:var(--rose)">0</div><div class="s-lbl">Treinos mês</div></div>
-  </div>
-  <div class="g2">
-    <div class="card">
-      <div class="ct">📋 Próximas tarefas</div>
-      <div id="dashTodos" style="font-size:12px;color:var(--text2);">—</div>
-    </div>
-    <div class="card">
-      <div class="ct">⏰ Agora na rotina</div>
-      <div id="dashNow" style="font-size:13px;color:var(--text2);">—</div>
-      <hr class="div">
-      <div class="ct" style="margin-bottom:8px;">💧 Água</div>
-      <div style="display:flex;gap:4px;flex-wrap:wrap;" id="dashCups"></div>
-    </div>
-    <div class="card gc2">
-      <div class="ct">📈 Semana em foco</div>
-      <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);">
-        <span>🏋️ <strong style="color:var(--text)">Treino A–D</strong> Seg/Ter/Qui/Sex</span>
-        <span>📐 <strong style="color:var(--text)">Matemática</strong> 07h–08h30 diário</span>
-        <span>🎨 <strong style="color:var(--text)">Cultura</strong> 12h–13h diário</span>
-        <span>🚀 <strong style="color:var(--text)">Carreira</strong> almoço + sábado</span>
-        <span>⚡ <strong style="color:var(--text)">Workflow IA</strong> 12h50–13h diário</span>
+    <div class="dash-stats">
+      <div class="stat-card sc-a">
+        <div class="stat-val" id="statTodo">0</div>
+        <div class="stat-label">Tarefas hoje</div>
+      </div>
+      <div class="stat-card sc-b">
+        <div class="stat-val" id="statWater">0</div>
+        <div class="stat-label">Copos água</div>
+      </div>
+      <div class="stat-card sc-o">
+        <div class="stat-val" id="statMath">0</div>
+        <div class="stat-label">Sem. mat.</div>
+      </div>
+      <div class="stat-card sc-g">
+        <div class="stat-val" id="statTreino">0</div>
+        <div class="stat-label">Treinos mês</div>
       </div>
     </div>
-  </div>
-</div>
 
-<!-- ══ TODO ══ -->
-<div class="page" id="page-todo">
-  <div class="ph">
-    <div class="ph-left"><h1>Minhas <em>Tarefas</em></h1><div class="ph-sub">Crie, edite, conclua e organize</div></div>
-  </div>
-  <div class="card mb14">
-    <div style="display:flex;gap:8px;margin-bottom:8px;">
-      <input type="text" id="todoIn" placeholder="Nova tarefa..." style="flex:1;" onkeydown="if(event.key==='Enter')addTodo()">
-      <button class="btn btn-g" onclick="addTodo()">+ Adicionar</button>
-    </div>
-    <div style="display:flex;gap:7px;flex-wrap:wrap;">
-      <select id="todoPri" style="width:auto;flex:1;"><option value="baixa">🟢 Baixa</option><option value="media" selected>🟠 Média</option><option value="alta">🔴 Alta</option></select>
-      <select id="todoCat" style="width:auto;flex:1;"><option value="geral">Geral</option><option value="trabalho">Trabalho</option><option value="faculdade">Faculdade</option><option value="carreira">Carreira</option><option value="saude">Saúde</option></select>
-    </div>
-  </div>
-  <div style="display:flex;gap:6px;margin-bottom:12px;">
-    <button class="btn btn-g btn-sm" onclick="filterT('all',this)">Todas</button>
-    <button class="btn btn-gh btn-sm" onclick="filterT('pending',this)">Pendentes</button>
-    <button class="btn btn-gh btn-sm" onclick="filterT('done',this)">Concluídas</button>
-  </div>
-  <div id="todoList"></div>
-</div>
-
-<!-- ══ ROTINA ══ -->
-<div class="page" id="page-rotina">
-  <div class="ph">
-    <div class="ph-left"><h1>Rotina <em>Diária</em></h1><div class="ph-sub">Seg–Dom com blocos de capital cultural e IA</div></div>
-  </div>
-  <div style="display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px;" id="rotDays"></div>
-  <div class="g2">
-    <div class="card gc2">
-      <div class="ct" id="rotDayTitle">📅 Segunda</div>
-      <div class="tl" id="rotTl"></div>
-    </div>
     <div class="card">
-      <div class="ct">🎯 Blocos novos desta semana</div>
-      <div style="font-size:11px;color:var(--text2);line-height:1.8;">
-        <div>🏛️ <strong style="color:var(--text)">Filosofia/Sociologia</strong> — 12h00, 30 min</div>
-        <div>📖 <strong style="color:var(--text)">Vocabulário</strong> — 12h30, 20 min</div>
-        <div>🖼️ <strong style="color:var(--text)">Arte do dia</strong> — 13h, passivo</div>
-        <div>⚡ <strong style="color:var(--text)">Workflow IA</strong> — 12h50, 10 min</div>
-        <div style="margin-top:8px;padding:8px;background:var(--green-l);border-radius:8px;color:var(--green);font-size:10px;">Encaixados na janela 12h–13h, que já era ociosa entre trabalho e treino.</div>
+      <div class="card-title">💧 Água Hoje <span style="font-size:12px;color:var(--text2);font-family:'Epilogue';letter-spacing:0;margin-left:auto;" id="waterCount">0 / 14 copos</span></div>
+      <div class="water-track" id="waterCups"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 Próximas Tarefas</div>
+      <div id="dashTodos" style="font-size:13px;color:var(--text2);">Nenhuma tarefa pendente.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⏰ Rotina Agora</div>
+      <div id="dashRotina" style="font-size:13px;color:var(--text2);">—</div>
+    </div>
+  </div>
+
+  <!-- ── TODO ── -->
+  <div class="page" id="p-todo">
+    <div class="page-header">
+      <div class="page-eyebrow">Organização</div>
+      <div class="page-title">TO-DO<br><em>LIST</em></div>
+    </div>
+
+    <div class="card">
+      <div class="todo-input-row">
+        <input type="text" id="todoInput" placeholder="Nova tarefa..." onkeydown="if(event.key==='Enter')addTodo()">
+        <button class="btn btn-primary" onclick="addTodo()">+</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:0;flex-wrap:wrap;">
+        <select id="todoPriority" style="width:auto;flex:1;">
+          <option value="baixa">🟢 Baixa</option>
+          <option value="media" selected>🟠 Média</option>
+          <option value="alta">🔴 Alta</option>
+        </select>
+        <select id="todoCategory" style="width:auto;flex:1;">
+          <option value="geral">Geral</option>
+          <option value="trabalho">Trabalho</option>
+          <option value="faculdade">Faculdade</option>
+          <option value="carreira">Carreira</option>
+          <option value="saude">Saúde</option>
+        </select>
       </div>
     </div>
-    <div class="card">
-      <div class="ct">📐 Onde encaixar</div>
-      <div style="font-size:11px;color:var(--text2);line-height:1.9;">
-        <div><span style="font-family:var(--mono);color:var(--text3);">12h00</span> → Filosofia + Vocabulário</div>
-        <div><span style="font-family:var(--mono);color:var(--text3);">12h50</span> → Workflow IA (specs, agentes)</div>
-        <div><span style="font-family:var(--mono);color:var(--text3);">13h00</span> → Arte do dia (durante refeição)</div>
-        <div><span style="font-family:var(--mono);color:var(--text3);">Sáb 16h</span> → Cultura profunda 2h</div>
+
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+      <button class="btn btn-ghost btn-sm" onclick="filterTodo('all')" id="fAll">Todas</button>
+      <button class="btn btn-ghost btn-sm" onclick="filterTodo('pending')" id="fPend">Pendentes</button>
+      <button class="btn btn-ghost btn-sm" onclick="filterTodo('done')" id="fDone">Concluídas</button>
+    </div>
+
+    <div id="todoList"></div>
+  </div>
+
+  <!-- ── ROTINA ── -->
+  <div class="page" id="p-rotina">
+    <div class="page-header">
+      <div class="page-eyebrow">Dia a Dia</div>
+      <div class="page-title">ROTINA<br><em>DIÁRIA</em></div>
+    </div>
+
+    <div class="rotina-day-tabs" id="rotinaTabs"></div>
+    <div id="rotinaContent"></div>
+  </div>
+
+  <!-- ── TREINO ── -->
+  <div class="page" id="p-treino">
+    <div class="page-header">
+      <div class="page-eyebrow">Protocolo Cutting</div>
+      <div class="page-title">TREINO<br><em>SEMANAL</em></div>
+    </div>
+
+    <div class="treino-phase-bar">
+      <div class="phase-pill active" onclick="setPhase(1,this)">
+        <div class="phase-pill-num">FASE 01</div>
+        <div class="phase-pill-name">Base</div>
+      </div>
+      <div class="phase-pill" onclick="setPhase(2,this)">
+        <div class="phase-pill-num">FASE 02</div>
+        <div class="phase-pill-name">Cutting</div>
+      </div>
+      <div class="phase-pill" onclick="setPhase(3,this)">
+        <div class="phase-pill-num">FASE 03</div>
+        <div class="phase-pill-name">Shred</div>
       </div>
     </div>
-  </div>
-</div>
 
-<!-- ══ TREINO ══ -->
-<div class="page" id="page-treino">
-  <div class="ph">
-    <div class="ph-left"><h1>Treino <em>Semanal</em></h1><div class="ph-sub">Protocolo Cutting · Log de cargas</div></div>
-  </div>
-  <div class="g3 mb14">
-    <div class="s-box s-green" style="border-radius:13px;cursor:pointer;" onclick="setPhase(1)"><div class="s-val" id="phKcal" style="color:var(--green)">1.600</div><div class="s-lbl">kcal · Fase 1</div></div>
-    <div class="s-box s-blue" style="border-radius:13px;"><div class="s-val" style="color:var(--blue);" id="phCardio">20min</div><div class="s-lbl">Cardio pós</div></div>
-    <div class="s-box s-rose" style="border-radius:13px;"><div class="s-val" style="color:var(--rose);" id="phProt">175g</div><div class="s-lbl">Proteína/dia</div></div>
-  </div>
-  <div style="display:flex;gap:7px;margin-bottom:12px;">
-    <button class="btn btn-g btn-sm active-phase" onclick="setPhase(1,this)">Fase 1 — Base</button>
-    <button class="btn btn-gh btn-sm" onclick="setPhase(2,this)">Fase 2 — Cutting</button>
-    <button class="btn btn-gh btn-sm" onclick="setPhase(3,this)">Fase 3 — Shred</button>
-  </div>
-  <div id="treinoList"></div>
-</div>
+    <div class="card" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;margin-bottom:14px;">
+      <div><div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--accent)" id="phaseKcal">1600</div><div style="font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;">kcal/dia</div></div>
+      <div><div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--blue)" id="phaseCardio">20min</div><div style="font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;">cardio pós</div></div>
+      <div><div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--orange)" id="phaseProteina">175g</div><div style="font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;">proteína</div></div>
+    </div>
 
-<!-- ══ DIETA ══ -->
-<div class="page" id="page-dieta">
-  <div class="ph">
-    <div class="ph-left"><h1>Dieta <em>16:8</em></h1><div class="ph-sub">Janela 13h→21h · Protocolo cutting · Sem peixe</div></div>
+    <div id="treinoList"></div>
   </div>
-  <div class="g4 mb14">
-    <div class="s-box s-green"><div class="s-val" style="color:var(--green)">1600</div><div class="s-lbl">kcal/dia</div></div>
-    <div class="s-box s-blue"><div class="s-val" style="color:var(--blue)">175g</div><div class="s-lbl">proteína</div></div>
-    <div class="s-box s-gold"><div class="s-val" style="color:var(--gold)">130g</div><div class="s-lbl">carboidrato</div></div>
-    <div class="s-box s-rose"><div class="s-val" style="color:var(--rose)">38g</div><div class="s-lbl">gordura</div></div>
-  </div>
-  <div id="dietaMeals"></div>
-</div>
 
-<!-- ══ MATH ══ -->
-<div class="page" id="page-math">
-  <div class="ph">
-    <div class="ph-left"><h1>Matemática <em>Recuperação</em></h1><div class="ph-sub">12 semanas · 90 min/dia · Junho 2025</div></div>
-  </div>
-  <div class="g2 mb14">
-    <div class="card">
-      <div class="ct">⏱ Timer de Sessão</div>
-      <div class="timer-box">
-        <div class="timer-num" id="timerDisp">90:00</div>
-        <div class="timer-ph" id="timerPh">Pronto para começar</div>
-        <div style="display:flex;gap:8px;justify-content:center;">
-          <button class="timer-btn timer-btn-go" id="timerBtn" onclick="toggleTimer()">▶ Iniciar</button>
-          <button class="timer-btn timer-btn-rst" onclick="resetTimer()">↺ Reset</button>
+  <!-- ── MATH ── -->
+  <div class="page" id="p-math">
+    <div class="page-header">
+      <div class="page-eyebrow">Prova — 1ª Semana de Julho 2026</div>
+      <div class="page-title">MATEMÁTICA<br><em>CRONOGRAMA</em></div>
+    </div>
+
+    <div class="card" style="background:linear-gradient(135deg,rgba(245,154,60,0.07),rgba(245,154,60,0.02));border-color:rgba(245,154,60,0.25);">
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <div style="text-align:center;flex:1;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:42px;color:var(--orange);line-height:1;" id="mathDaysLeft">—</div>
+          <div style="font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px;">dias p/ prova</div>
+        </div>
+        <div style="flex:2;border-left:1px solid var(--border);padding-left:16px;">
+          <div style="font-size:12px;color:var(--text2);line-height:1.6;">
+            <span style="color:var(--accent)">Início:</span> 19 mai &nbsp;→&nbsp; <span style="color:var(--orange)">Prova: ~7 jul</span><br>
+            <span style="color:var(--text2)">7 semanas · comece <b style="color:var(--text)">hoje</b> e chega tranquilo</span>
+          </div>
         </div>
       </div>
     </div>
-    <div class="card">
-      <div class="ct">📅 Semanas concluídas</div>
-      <div class="math-wk" id="mathWks"></div>
-      <div style="font-size:11px;color:var(--text2);">Clique para marcar cada semana como concluída.</div>
-    </div>
-  </div>
-  <div id="mathTopics"></div>
-</div>
 
-<!-- ══ CULTURA ══ -->
-<div class="page" id="page-cultura">
-  <div class="ph">
-    <div class="ph-left"><h1>Capital <em>Cultural</em></h1><div class="ph-sub">Filosofia · Sociologia · Arte · 30 min/dia</div></div>
-  </div>
-  <div class="g2">
     <div class="card">
-      <div class="ct">🏛️ Filosofia — Roteiro 12 semanas</div>
-      <div class="fq-box">
-        <div class="fq-text">"Só sei que nada sei."</div>
-        <div class="fq-auth">— Sócrates · Apologia de Sócrates · ~399 a.C.</div>
-        <div class="fq-ctx">A maiêutica socrática: o conhecimento não é transmitido, é parido. O filósofo não ensina — ele questiona até o interlocutor descobrir a verdade por si mesmo. Base do pensamento crítico ocidental.</div>
-      </div>
-      <div style="font-size:11px;color:var(--text2);">
-        <div style="padding:5px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;"><span><b>S1–2</b> Pré-socráticos (Tales, Heráclito)</span><span class="pill p-d">Base</span></div>
-        <div style="padding:5px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;"><span><b>S3–4</b> Sócrates, Platão — Mito da Caverna</span><span class="pill p-g">Essencial</span></div>
-        <div style="padding:5px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;"><span><b>S5–6</b> Aristóteles — Ética a Nicômaco</span><span class="pill p-d">Pendente</span></div>
-        <div style="padding:5px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;"><span><b>S7–8</b> Estoicismo — Marco Aurélio</span><span class="pill p-d">Pendente</span></div>
-        <div style="padding:5px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;"><span><b>S9–10</b> Iluminismo — Kant, Descartes</span><span class="pill p-d">Pendente</span></div>
-        <div style="padding:5px 0;display:flex;justify-content:space-between;"><span><b>S11–12</b> Nietzsche, Sartre, Existencialismo</span><span class="pill p-d">Pendente</span></div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="ct">🖼️ Arte — Obra da semana</div>
-      <div class="arte-dk">
-        <div class="arte-tag">Esta semana · Renascimento</div>
-        <div class="arte-tl">A Escola de Atenas</div>
-        <div class="arte-sub">Rafael Sanzio · 1509 · Vaticano, Roma</div>
-        <div class="arte-fact">Afresco de 7,7m que representa o ideal renascentista: razão e conhecimento. Platão (apontando para cima — mundo das ideias) e Aristóteles (mão horizontal — mundo real) são os eixos. Rafael incluiu Leonardo da Vinci e Michelangelo disfarçados de filósofos gregos.</div>
-      </div>
-      <div style="font-size:11px;color:var(--text2);">
-        <div style="padding:4px 0;border-bottom:1px solid var(--border);">🏛️ Clássico → Medieval → <strong style="color:var(--green)">Renascimento ← você</strong></div>
-        <div style="padding:4px 0;border-bottom:1px solid var(--border);">→ Barroco (Caravaggio, Rembrandt)</div>
-        <div style="padding:4px 0;border-bottom:1px solid var(--border);">→ Impressionismo (Monet, Degas)</div>
-        <div style="padding:4px 0;">→ Modernismo (Picasso, Dalí, Warhol)</div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="ct">🌐 Sociologia — Conceitos</div>
-      <div class="vw">
-        <div class="vw-term">Capital Cultural</div>
-        <div class="vw-cls">Pierre Bourdieu · 1979</div>
-        <div class="vw-def">Recursos culturais, conhecimentos e títulos que conferem status social. Divide-se em incorporado (habitus), objetivado (livros, obras) e institucionalizado (diplomas).</div>
-        <div class="vw-ex">O que você está construindo agora é capital cultural incorporado — transforma quem você é, não só o que sabe.</div>
-      </div>
-      <div class="vw">
-        <div class="vw-term">Habitus</div>
-        <div class="vw-cls">Bourdieu · Conceito central</div>
-        <div class="vw-def">Disposições duráveis adquiridas pela prática social — maneiras de pensar e agir que se tornam automáticas. Construído, não inato.</div>
-      </div>
-      <div class="vw">
-        <div class="vw-term">Alienação</div>
-        <div class="vw-cls">Marx · 1844</div>
-        <div class="vw-def">Estranhamento do trabalhador em relação ao produto do seu trabalho, à sua natureza humana e aos outros.</div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="ct">🗣️ Vocabulário elevado — quando usar</div>
-      <div class="fq-box" style="background:var(--rose-l);border-color:#e8c0c0;">
-        <div class="fq-text" style="font-size:12px;">"Clareza é a polidez do escritor. Precisão é o seu respeito pela inteligência do interlocutor."</div>
-        <div class="fq-auth" style="color:var(--rose);">Princípio retórico clássico</div>
-      </div>
-      <div style="font-size:11px;color:var(--text2);line-height:1.8;">
-        <div>✅ Documentos técnicos — specs, strategy docs, relatórios</div>
-        <div>✅ Argumentação oral — reuniões de alto nível</div>
-        <div>✅ Escrita reflexiva — posts, artigos, análises</div>
-        <div>❌ Nunca para impressionar — soa afetado</div>
-        <div>❌ Nunca em contextos informais — perde autenticidade</div>
-      </div>
-      <div style="margin-top:9px;padding:9px;background:var(--bg);border-radius:8px;font-size:10px;color:var(--text2);line-height:1.5;">
-        <strong style="color:var(--text)">Regra de ouro:</strong> use a palavra mais precisa, não a mais rara. Vocabulário elevado é consequência de leitura, não objetivo em si.
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══ VOCAB ══ -->
-<div class="page" id="page-vocab">
-  <div class="ph">
-    <div class="ph-left"><h1>Vocabulário <em>& Retórica</em></h1><div class="ph-sub">20 min/dia · uso contextualizado · 5 palavras/semana</div></div>
-  </div>
-  <div class="g2">
-    <div class="card">
-      <div class="ct">📖 Palavras da semana</div>
-      <div class="vw"><div class="vw-term">Axioma</div><div class="vw-cls">substantivo · Lógica</div><div class="vw-def">Proposição aceita como verdadeira sem necessidade de demonstração; base de um sistema dedutivo.</div><div class="vw-ex">"É um axioma do desenvolvimento que código não documentado é código que não existe."</div></div>
-      <div class="vw"><div class="vw-term">Dialética</div><div class="vw-cls">substantivo · Filosofia</div><div class="vw-def">Método baseado no confronto de tese e antítese para alcançar síntese superior. Em Marx, motor da história.</div><div class="vw-ex">"A dialética entre vibe coding e spec-driven resulta em síntese: IA com especificação clara."</div></div>
-      <div class="vw"><div class="vw-term">Heurística</div><div class="vw-cls">substantivo · Metodologia</div><div class="vw-def">Atalho mental prático, não garantido como ótimo, mas suficiente para atingir metas imediatas.</div><div class="vw-ex">"Minha heurística: se os testes estão bem escritos, a implementação provavelmente está correta."</div></div>
-      <div class="vw"><div class="vw-term">Episteme</div><div class="vw-cls">substantivo · Filosofia Grega</div><div class="vw-def">Conhecimento rigoroso por oposição à doxa (opinião). Em Foucault, estrutura que define o que pode ser dito numa época.</div><div class="vw-ex">"A episteme da nossa era é a IA — redefine o possível como a imprensa fez no século XV."</div></div>
-      <div class="vw"><div class="vw-term">Paradigma</div><div class="vw-cls">substantivo · Ciência (Kuhn)</div><div class="vw-def">Modelo compartilhado que define problemas legítimos e métodos de solução. Mudança de paradigma = revolução científica.</div><div class="vw-ex">"O Spec Driven Development é um paradigma — nova forma de pensar desenvolvimento, não só técnica."</div></div>
-    </div>
-    <div class="card">
-      <div class="ct">🎙️ Figuras & método</div>
-      <div class="vw"><div class="vw-term">Anacrônico</div><div class="vw-cls">adjetivo · Tempo</div><div class="vw-def">Deslocado no tempo; pertencente a época diferente da que se refere.</div><div class="vw-ex">"Escrever código sem IA em 2025 é tão anacrônico quanto datilografar."</div></div>
-      <div class="vw"><div class="vw-term">Prolífico</div><div class="vw-cls">adjetivo · Produtividade</div><div class="vw-def">Que produz muito; fecundo em obras ou realizações.</div><div class="vw-ex">"Tornou-se tão prolífico que o VP pediu para frear."</div></div>
-      <div class="vw"><div class="vw-term">Tautologia</div><div class="vw-cls">substantivo · Lógica</div><div class="vw-def">Em lógica: verdadeiro em qualquer circunstância. Em retórica: repetição inútil da mesma ideia.</div><div class="vw-ex">"'Não funciona porque está errado' é uma tautologia — não acrescenta informação."</div></div>
-      <hr class="div">
-      <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Método diário — 20 min</div>
-      <div style="font-size:11px;color:var(--text2);line-height:1.9;">
-        <div>1. Leia 3–5 palavras com definição e exemplo</div>
-        <div>2. Escreva uma frase própria com cada palavra</div>
-        <div>3. Use ≥1 palavra nova no dia (email, doc, conversa)</div>
-        <div>4. Revise as palavras da semana anterior</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══ WORKFLOW IA ══ -->
-<div class="page" id="page-ia">
-  <div class="ph">
-    <div class="ph-left"><h1>Workflow <em>com IA</em></h1><div class="ph-sub">Spec Driven Development · Claude Code · Agents · Skills</div></div>
-  </div>
-  <div class="g4 mb14">
-    <div class="s-box s-green"><div class="s-val" style="color:var(--green)">6→37</div><div class="s-lbl">contribuições/sem</div></div>
-    <div class="s-box s-blue"><div class="s-val" style="color:var(--blue)">0</div><div class="s-lbl">linhas manuais</div></div>
-    <div class="s-box s-gold"><div class="s-val" style="color:var(--gold)">4</div><div class="s-lbl">agentes paralelos</div></div>
-    <div class="s-box s-rose"><div class="s-val" style="color:var(--rose)">∞</div><div class="s-lbl">overnight tasks</div></div>
-  </div>
-  <div class="g2">
-    <div class="card">
-      <div class="ct">⚡ Spec Driven Dev — 5 passos</div>
-      <div class="wf-step"><div class="wf-n">01</div><div><div class="wf-ttl">Ticket + Contexto</div><div class="wf-desc">Passe o ticket do Linear + descrição do problema em linguagem natural. Seja específico sobre o negócio, não só o técnico.</div></div></div>
-      <div class="wf-step"><div class="wf-n">02</div><div><div class="wf-ttl">Agente explora o codebase em paralelo</div><div class="wf-desc">Claude Code lança sub-agentes para entender padrões, arquitetura e dependências. Garante consistência com o que já existe.</div></div></div>
-      <div class="wf-step"><div class="wf-n">03</div><div><div class="wf-ttl">REVISAR o plano — passo mais crítico</div><div class="wf-desc">O agente propõe um plano. <strong>Você lê. Você decide.</strong> A responsabilidade é sua, não da IA. Nunca delegue esta etapa.</div><span class="pill p-r" style="margin-top:5px;display:inline-block;">Crítico</span></div></div>
-      <div class="wf-step"><div class="wf-n">04</div><div><div class="wf-ttl">Aprovação → execução autônoma</div><div class="wf-desc">Com --dangerously-skip-permissions: escreve testes primeiro, implementa, itera até tudo passar. Pode rodar overnight.</div></div></div>
-      <div class="wf-step"><div class="wf-n">05</div><div><div class="wf-ttl">PR Review por 4 agentes paralelos</div><div class="wf-desc">Code Quality · Performance · Test Coverage · Security. Cada agente posta comentários diretamente no PR via API do GitHub.</div></div></div>
-    </div>
-    <div>
-      <div class="card mb14">
-        <div class="ct">📁 Estrutura de arquivos</div>
-        <div style="font-size:11px;color:var(--text2);">
-          <div style="padding:7px 0;border-bottom:1px solid var(--border);"><strong style="color:var(--text);">CLAUDE.md local</strong><br>Preferências pessoais — estilo, git worktrees, segurança, tom</div>
-          <div style="padding:7px 0;border-bottom:1px solid var(--border);"><strong style="color:var(--text);">CLAUDE.md do projeto</strong><br>Padrões do time — arquitetura, checklist de PR, como testar</div>
-          <div style="padding:7px 0;border-bottom:1px solid var(--border);"><strong style="color:var(--text);">Skills (.md)</strong><br>TDD skill, Git Worktree, Review, Debug, Spec writing</div>
-          <div style="padding:7px 0;"><strong style="color:var(--text);">Agentes</strong><br>Code Quality, Security, Performance, Test Coverage</div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="ct">🎯 Na sua rotina</div>
-        <div style="font-size:11px;color:var(--text2);">
-          <div style="padding:6px 0;border-bottom:1px solid var(--border);"><strong style="color:var(--text);">12h50–13h diário</strong><br>Revisar o que o agente fez. Aprovar ou reformular planos pendentes.</div>
-          <div style="padding:6px 0;border-bottom:1px solid var(--border);"><strong style="color:var(--text);">Antes de codar qualquer coisa</strong><br>Escreva a spec primeiro. Sem spec = sem evidência = sem case de promoção.</div>
-          <div style="padding:6px 0;"><strong style="color:var(--text);">Nunca delegue a revisão do plano</strong><br>IA escreve código. Você decide o que construir e como medir sucesso.</div>
+      <div class="card-title">⏱️ Timer de Estudo</div>
+      <div class="session-timer">
+        <div class="timer-label">Sessão atual</div>
+        <div class="timer-display" id="timerDisplay">90:00</div>
+        <div style="font-size:11px;color:var(--text2);margin:6px 0 12px;" id="timerPhase">Pronto para começar</div>
+        <div class="timer-btns">
+          <button class="btn btn-primary btn-sm" id="timerBtn" onclick="toggleTimer()">▶ Iniciar</button>
+          <button class="btn btn-ghost btn-sm" onclick="resetTimer()">↺ Reset</button>
         </div>
       </div>
     </div>
-  </div>
-</div>
 
-<!-- ══ CARREIRA ══ -->
-<div class="page" id="page-carreira">
-  <div class="ph">
-    <div class="ph-left"><h1>Carreira <em>& Mercado</em></h1><div class="ph-sub">Análise real · Kyndryl → Staff/Security/SRE · Previsão 2025–2035</div></div>
-  </div>
-
-  <!-- ANÁLISE DO MERCADO -->
-  <div class="card mb14">
-    <div class="ct">📊 Mercado Tech Brasil — Análise 2025–2035</div>
-    <div class="g3" style="margin-bottom:14px;">
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:11px;padding:13px;">
-        <div style="font-family:'Instrument Serif',serif;font-size:24px;color:var(--green);">44%</div>
-        <div style="font-size:10px;color:var(--text2);margin-top:2px;">das empresas vão ampliar equipes de TI até 2026 (Robert Half)</div>
-      </div>
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:11px;padding:13px;">
-        <div style="font-family:'Instrument Serif',serif;font-size:24px;color:var(--blue);">48%</div>
-        <div style="font-size:10px;color:var(--text2);margin-top:2px;">dos gestores pagam mais a quem tem certificações especializadas</div>
-      </div>
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:11px;padding:13px;">
-        <div style="font-family:'Instrument Serif',serif;font-size:24px;color:var(--gold);">#1</div>
-        <div style="font-size:10px;color:var(--text2);margin-top:2px;">Cibersegurança é a skill mais difícil de encontrar no Brasil em 2026</div>
-      </div>
+    <div class="card">
+      <div class="card-title">📅 Semanas concluídas <span style="font-size:10px;color:var(--text2);font-family:'Epilogue';font-weight:400;letter-spacing:0;margin-left:auto;" id="mathWeekLabel">0/7</span></div>
+      <div class="math-week-progress" id="mathWeekDots"></div>
     </div>
-    <div style="font-size:12px;color:var(--text2);margin-bottom:12px;font-weight:600;">Demanda por área — tendência de crescimento (estimativa de mercado)</div>
-    <div class="mkt-bar"><div class="mkt-lbl"><span>🔐 Security / Cibersegurança</span><span style="color:var(--green);font-weight:600;">★★★★★ Explosivo</span></div><div class="mkt-track"><div class="mkt-fill" style="width:95%"></div></div></div>
-    <div class="mkt-bar"><div class="mkt-lbl"><span>☁️ Cloud / SRE / DevOps</span><span style="color:var(--green);font-weight:600;">★★★★☆ Muito alto</span></div><div class="mkt-track"><div class="mkt-fill" style="width:85%;background:var(--blue)"></div></div></div>
-    <div class="mkt-bar"><div class="mkt-lbl"><span>🤖 IA Engineering</span><span style="color:var(--gold);font-weight:600;">★★★★★ Explosivo</span></div><div class="mkt-track"><div class="mkt-fill" style="width:95%;background:var(--gold)"></div></div></div>
-    <div class="mkt-bar"><div class="mkt-lbl"><span>👑 Staff Engineer</span><span style="color:var(--purple);font-weight:600;">★★★★☆ Alto / escasso</span></div><div class="mkt-track"><div class="mkt-fill" style="width:75%;background:var(--purple)"></div></div></div>
-    <div class="mkt-bar"><div class="mkt-lbl"><span>💻 Dev Senior genérico</span><span style="color:var(--text3);font-weight:600;">★★★☆☆ Estável/IA comprime</span></div><div class="mkt-track"><div class="mkt-fill" style="width:45%;background:var(--text3)"></div></div></div>
+
+    <div id="mathTopicList"></div>
   </div>
 
-  <!-- ANÁLISE DE CARREIRAS -->
-  <div class="card mb14">
-    <div class="ct">🔭 Análise: qual carreira seguir — Vinícius, 19 anos, stack Dev+Ops</div>
-    <div class="g3" style="gap:10px;">
-      <div style="background:var(--green-l);border:1.5px solid var(--green);border-radius:12px;padding:14px;">
-        <div style="font-weight:600;color:var(--green);margin-bottom:6px;font-size:13px;">🔐 Security Engineer</div>
-        <div style="font-size:11px;color:var(--text2);line-height:1.7;margin-bottom:8px;">
-          <div>✅ Mercado #1 em demanda Brasil 2026</div>
-          <div>✅ Seu stack Dev+Ops é base perfeita</div>
-          <div>✅ Kyndryl já trabalha com Security</div>
-          <div>✅ Salário: R$15k–35k sênior/especialista</div>
-          <div>✅ Trabalho remoto altamente aceito</div>
-          <div>✅ Daqui a 10 anos: IA aumenta ataques → mais demanda</div>
+  <!-- ── SAÚDE ── -->
+  <div class="page" id="p-saude">
+    <div class="page-header">
+      <div class="page-eyebrow">Qualidade de Vida</div>
+      <div class="page-title">SAÚDE<br><em>& HÁBITOS</em></div>
+    </div>
+
+    <!-- Cigarro tracker -->
+    <div class="card" style="border-color:rgba(245,92,92,0.25);">
+      <div class="card-title">🚬 Cigarros Hoje
+        <span style="font-size:11px;color:var(--text2);font-family:'Epilogue';font-weight:400;letter-spacing:0;margin-left:auto;" id="cigMeta"></span>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px;">
+        <div style="text-align:center;flex:1;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:52px;line-height:1;" id="cigCount">0</div>
+          <div style="font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;">hoje</div>
         </div>
-        <div class="pill p-g">MELHOR ESCOLHA PARA VOCÊ</div>
-      </div>
-      <div style="background:var(--blue-l);border:1px solid var(--blue);border-radius:12px;padding:14px;">
-        <div style="font-weight:600;color:var(--blue);margin-bottom:6px;font-size:13px;">☁️ SRE / Platform Engineer</div>
-        <div style="font-size:11px;color:var(--text2);line-height:1.7;margin-bottom:8px;">
-          <div>✅ Alta demanda — empresas escalam Cloud</div>
-          <div>✅ Seu contexto batch/ops é entrada direta</div>
-          <div>✅ Salário: R$12k–28k sênior</div>
-          <div>✅ AWS SAA-C03 abre todas as portas</div>
-          <div>⚠️ Mais commoditizado que Security em 5 anos</div>
-          <div>⚠️ IA automatiza parte do trabalho SRE</div>
+        <div style="flex:2;">
+          <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:8px;">
+            <div id="cigBar" style="height:100%;background:var(--red);border-radius:3px;transition:width 0.3s;width:0%;"></div>
+          </div>
+          <div style="font-size:11px;color:var(--text2);line-height:1.6;" id="cigStatus">—</div>
         </div>
-        <div class="pill p-b">SEGUNDA MELHOR OPÇÃO</div>
       </div>
-      <div style="background:var(--purple-l);border:1px solid var(--purple);border-radius:12px;padding:14px;">
-        <div style="font-weight:600;color:var(--purple);margin-bottom:6px;font-size:13px;">👑 Staff Engineer</div>
-        <div style="font-size:11px;color:var(--text2);line-height:1.7;margin-bottom:8px;">
-          <div>✅ Teto salarial altíssimo (R$25k–60k+)</div>
-          <div>✅ Trabalha com visão e impacto amplo</div>
-          <div>⚠️ Caminho longo — mín. 5–7 anos</div>
-          <div>⚠️ Precisa de múltiplas entregas com impacto</div>
-          <div>⚠️ Não exclui Security ou SRE — são complementares</div>
-          <div>✅ Spec Driven Dev é exatamente esse mindset</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-ghost" style="flex:1;" onclick="addCig(-1)">− Tirar</button>
+        <button class="btn" style="flex:1;background:rgba(245,92,92,0.15);color:var(--red);border:1px solid rgba(245,92,92,0.3);" onclick="addCig(1)">+ Adicionar</button>
+      </div>
+      <div style="margin-top:12px;background:rgba(245,92,92,0.05);border-radius:10px;padding:10px 12px;">
+        <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--red);margin-bottom:6px;">Plano de Redução</div>
+        <div id="cigPlan" style="font-size:12px;color:var(--text2);line-height:1.7;"></div>
+      </div>
+    </div>
+
+    <!-- Cardio Protocol -->
+    <div class="card">
+      <div class="card-title">🫀 Protocolo Cardio — Fases</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6;">
+        Progressão de 4 fases adaptada para <span style="color:var(--accent)">fumante retomando o condicionamento</span>. SIT entra na Fase 2 — ir antes sem base é contraproducente e arriscado.
+      </div>
+      <div id="cardioPhases"></div>
+      <div style="margin-top:14px;">
+        <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:8px;">Fase atual</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-ghost btn-sm" onclick="setCardioPhase(0,this)">Fase 0</button>
+          <button class="btn btn-ghost btn-sm" onclick="setCardioPhase(1,this)">Fase 1</button>
+          <button class="btn btn-ghost btn-sm" onclick="setCardioPhase(2,this)">Fase 2</button>
+          <button class="btn btn-ghost btn-sm" onclick="setCardioPhase(3,this)">Fase 3</button>
         </div>
-        <div class="pill p-p">META DE LONGO PRAZO</div>
       </div>
     </div>
-    <div style="margin-top:12px;padding:12px;background:var(--bg);border-radius:10px;font-size:12px;color:var(--text2);line-height:1.7;border-left:3px solid var(--green);">
-      <strong style="color:var(--text)">Recomendação para Vinícius:</strong> o caminho ideal é <strong>Security Engineer como especialidade</strong>, com SRE como habilidade complementar e Staff Engineer como norte de liderança. A combinação Dev+Ops+Security+Cloud é a mais escassa e mais valiosa do mercado brasileiro hoje — e vai ser ainda mais em 2030. Você já tem a base. Falta a certificação e a especialização.
+
+    <!-- Sessão SIT Timer -->
+    <div class="card" id="sitTimerCard" style="display:none;">
+      <div class="card-title">⚡ Timer SIT</div>
+      <div class="session-timer" style="background:rgba(184,122,245,0.05);border-color:rgba(184,122,245,0.2);">
+        <div class="timer-label" id="sitLabel">Preparação</div>
+        <div class="timer-display" style="color:var(--purple);" id="sitDisplay">00:20</div>
+        <div style="font-size:11px;color:var(--text2);margin:4px 0 12px;" id="sitRound">Round 1 de 6</div>
+        <div class="timer-btns">
+          <button class="btn btn-sm" style="background:var(--purple);color:#fff;" id="sitBtn" onclick="toggleSIT()">▶ Iniciar</button>
+          <button class="btn btn-ghost btn-sm" onclick="resetSIT()">↺ Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Check-in semanal -->
+    <div class="card">
+      <div class="card-title">📊 Check-in Semanal</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:12px;">Teste simples: quantos lances de escada você sobe sem precisar parar e recuperar o fôlego?</div>
+      <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:100px;">
+          <label style="font-size:11px;color:var(--text2);display:block;margin-bottom:6px;">Lances de escada</label>
+          <input type="number" id="saudeEscada" placeholder="Ex: 2" min="0" max="20">
+        </div>
+        <div style="flex:1;min-width:100px;">
+          <label style="font-size:11px;color:var(--text2);display:block;margin-bottom:6px;">Nota geral (1-10)</label>
+          <input type="number" id="saudeNota" placeholder="1–10" min="1" max="10">
+        </div>
+        <button class="btn btn-primary btn-sm" style="height:40px;" onclick="saveSaudeCheckin()">Salvar</button>
+      </div>
+      <div id="saudeCheckinList"></div>
+    </div>
+
+    <!-- Dicas -->
+    <div class="card" style="background:rgba(212,245,60,0.03);">
+      <div class="card-title">💡 Dicas para Fumantes</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.8;">
+        <div style="padding:8px 0;border-bottom:1px solid var(--border);">🌬️ <b style="color:var(--text)">Aquecimento obrigatório</b> — 5 min de caminhada antes de qualquer cardio. Pulmões de fumante precisam de mais tempo para dilatar os brônquios.</div>
+        <div style="padding:8px 0;border-bottom:1px solid var(--border);">💧 <b style="color:var(--text)">Hidratação dobrada</b> — Fumar resseca as vias aéreas. 14 copos é mínimo, especialmente em dias de treino.</div>
+        <div style="padding:8px 0;border-bottom:1px solid var(--border);">⏳ <b style="color:var(--text)">Não fume 1h antes do treino</b> — Nicotina causa vasoconstrição e reduz o desempenho cardiovascular significativamente.</div>
+        <div style="padding:8px 0;border-bottom:1px solid var(--border);">📈 <b style="color:var(--text)">SIT + cessação = combo</b> — Exercício físico intenso reduz o craving por nicotina por até 30 min após a sessão. Use isso a seu favor.</div>
+        <div style="padding:8px 0;">🫁 <b style="color:var(--text)">72h sem fumar</b> — Esse é o ponto onde a capacidade pulmonar já começa a melhorar. Se vier a tentar parar, sabe o primeiro checkpoint.</div>
+      </div>
     </div>
   </div>
 
-  <!-- PROJEÇÃO 2025–2035 -->
-  <div class="card mb14">
-    <div class="ct">📅 Projeção de mercado 2025–2035</div>
-    <div style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:12px;">
-      <div style="padding:8px 0;border-bottom:1px solid var(--border);display:flex;gap:12px;">
-        <span style="font-family:var(--mono);color:var(--text3);min-width:44px;">2025</span>
-        <span>IA acelera desenvolvimento → <strong style="color:var(--text)">demanda por devs genéricos cai, demanda por especialistas sobe</strong>. Security e SRE explodem. Staff Engineers ganham importância por saber usar IA + ter visão sistêmica.</span>
+  <!-- ── DIETA ── -->
+  <div class="page" id="p-dieta">
+    <div class="page-header">
+      <div class="page-eyebrow">Protocolo 16:8</div>
+      <div class="page-title">DIETA<br><em>CORTE</em></div>
+    </div>
+
+    <div class="card" style="background:linear-gradient(135deg,rgba(212,245,60,0.07),rgba(212,245,60,0.02));border-color:rgba(212,245,60,0.2);">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <div style="text-align:center;flex:1;"><div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--accent);">1600</div><div style="font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;">kcal</div></div>
+        <div style="text-align:center;flex:1;"><div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--blue);">175g</div><div style="font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;">proteína</div></div>
+        <div style="text-align:center;flex:1;"><div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--orange);">130g</div><div style="font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;">carbo</div></div>
+        <div style="text-align:center;flex:1;"><div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--red);">38g</div><div style="font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;">gordura</div></div>
       </div>
-      <div style="padding:8px 0;border-bottom:1px solid var(--border);display:flex;gap:12px;">
-        <span style="font-family:var(--mono);color:var(--text3);min-width:44px;">2027</span>
-        <span><strong style="color:var(--text)">IA gera mais vetores de ataque</strong> do que nunca → Security Engineers em déficit crítico. SRE evolui para Platform Engineer com IA. Certificações Cloud+Security = passaporte para projetos internacionais.</span>
+      <hr class="divider">
+      <div style="font-size:12px;color:var(--text2);text-align:center;">⏱️ Janela alimentar: <strong style="color:var(--accent)">13h → 21h</strong> · Jejum 16:8 natural</div>
+    </div>
+
+    <div id="dietaMeals"></div>
+  </div>
+
+  <!-- ── CARREIRA ── -->
+  <div class="page" id="p-carreira">
+    <div class="page-header">
+      <div class="page-eyebrow">Kyndryl · Staff Engineer Path</div>
+      <div class="page-title">CARREIRA<br><em>KYNDRYL</em></div>
+    </div>
+
+    <div class="card" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div style="text-align:center;padding:10px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--accent);">Staff Eng</div>
+        <div style="font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;">Objetivo</div>
       </div>
-      <div style="padding:8px 0;border-bottom:1px solid var(--border);display:flex;gap:12px;">
-        <span style="font-family:var(--mono);color:var(--text3);min-width:44px;">2030</span>
-        <span>Regulamentação de IA e LGPD evoluída → <strong style="color:var(--text)">Security + Compliance viram obrigatórios</strong> em todas as empresas médias+. Profissional com visão Dev+Security+Cloud se torna raro e altamente remunerado no Brasil e internacionalmente.</span>
+      <div style="text-align:center;padding:10px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--blue)">AWS SAA</div>
+        <div style="font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;">1ª Cert.</div>
       </div>
-      <div style="padding:8px 0;display:flex;gap:12px;">
-        <span style="font-family:var(--mono);color:var(--text3);min-width:44px;">2035</span>
-        <span>IA automatiza código trivial completamente. <strong style="color:var(--text)">O diferencial humano é julgamento, visão sistêmica e segurança</strong>. Quem dominar Security + Arquitetura + IA como ferramenta será o profissional mais valioso do mercado.</span>
+    </div>
+
+    <div id="careerPillars"></div>
+
+    <div class="card" style="margin-top:4px;">
+      <div class="card-title">📝 Registro STAR</div>
+      <div class="star-form">
+        <div class="star-form-title">Nova entrada STAR</div>
+        <div class="star-row"><label>Situação</label><input type="text" id="starS" placeholder="Contexto do projeto..."></div>
+        <div class="star-row"><label>Tarefa</label><input type="text" id="starT" placeholder="O que você precisava fazer..."></div>
+        <div class="star-row"><label>Ação</label><textarea id="starA" placeholder="O que você fez especificamente..." style="min-height:60px;"></textarea></div>
+        <div class="star-row"><label>Resultado</label><input type="text" id="starR" placeholder="Impacto mensurável..."></div>
+        <button class="btn btn-primary btn-sm" onclick="addStar()">Salvar Entrada</button>
       </div>
+      <div style="margin-top:14px;" id="starList"></div>
     </div>
   </div>
 
-  <!-- ROADMAP ══ -->
-  <div class="card mb14">
-    <div class="ct">🗺️ Roadmap pessoal — Vinícius</div>
-    <div class="career-path">
-      <div class="cp-nd cp-now"><div class="cp-yr">Agora · 2025</div><div class="cp-tl">Kyndryl Ops</div><div class="cp-sl">Base</div></div>
-      <div class="cp-nd"><div class="cp-yr">6 meses</div><div class="cp-tl">AWS SAA-C03</div><div class="cp-sl">1ª cert.</div></div>
-      <div class="cp-nd"><div class="cp-yr">12 meses</div><div class="cp-tl">Security+</div><div class="cp-sl">R$8–12k</div></div>
-      <div class="cp-nd"><div class="cp-yr">18 meses</div><div class="cp-tl">SE Specialist</div><div class="cp-sl">R$12–18k</div></div>
-      <div class="cp-nd"><div class="cp-yr">3 anos</div><div class="cp-tl">Security Eng.</div><div class="cp-sl">R$18–28k</div></div>
-      <div class="cp-nd"><div class="cp-yr">5 anos</div><div class="cp-tl">Senior Sec/SRE</div><div class="cp-sl">R$25–40k</div></div>
-      <div class="cp-nd"><div class="cp-yr">7–10 anos</div><div class="cp-tl">Staff / Arch.</div><div class="cp-sl">R$40k–60k+</div></div>
-    </div>
-
-    <div style="font-size:12px;color:var(--text2);font-weight:600;margin-bottom:10px;">Top 10 ações — próximos 30 dias</div>
-    <div style="font-size:11px;color:var(--text2);">
-      <div style="padding:6px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:flex-start;"><span style="font-family:var(--mono);color:var(--green);min-width:20px;font-size:10px;">01</span><span>Criar Diário de Conquistas — registrar últimas 3 entregas em formato STAR</span></div>
-      <div style="padding:6px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:flex-start;"><span style="font-family:var(--mono);color:var(--green);min-width:20px;font-size:10px;">02</span><span>Comprar curso AWS SAA-C03 (Stephane Maarek — Udemy) e definir cronograma</span></div>
-      <div style="padding:6px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:flex-start;"><span style="font-family:var(--mono);color:var(--green);min-width:20px;font-size:10px;">03</span><span>Mudar tudo para inglês — SO, apps, GitHub, commits, code comments</span></div>
-      <div style="padding:6px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:flex-start;"><span style="font-family:var(--mono);color:var(--green);min-width:20px;font-size:10px;">04</span><span>Atualizar LinkedIn em inglês com foco em Cloud + Security + DevOps</span></div>
-      <div style="padding:6px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:flex-start;"><span style="font-family:var(--mono);color:var(--green);min-width:20px;font-size:10px;">05</span><span>Entrar em 2 CoPs internas da Kyndryl: Cloud e Security</span></div>
-      <div style="padding:6px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:flex-start;"><span style="font-family:var(--mono);color:var(--green);min-width:20px;font-size:10px;">06</span><span>Criar repositório GitHub público com automações/scripts anonimizados</span></div>
-      <div style="padding:6px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:flex-start;"><span style="font-family:var(--mono);color:var(--green);min-width:20px;font-size:10px;">07</span><span>Identificar 1 problema real na operação e escrever a spec antes de codar</span></div>
-      <div style="padding:6px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:flex-start;"><span style="font-family:var(--mono);color:var(--green);min-width:20px;font-size:10px;">08</span><span>Configurar CLAUDE.md local + instalar Claude Code no terminal</span></div>
-      <div style="padding:6px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:flex-start;"><span style="font-family:var(--mono);color:var(--green);min-width:20px;font-size:10px;">09</span><span>Agendar 1:1 com gestor — apresentar plano de carreira e pedir alinhamento</span></div>
-      <div style="padding:6px 0;display:flex;gap:8px;align-items:flex-start;"><span style="font-family:var(--mono);color:var(--green);min-width:20px;font-size:10px;">10</span><span>Solicitar acesso ao Kyndryl Learning Hub — mapear cursos Cloud + Security</span></div>
-    </div>
-  </div>
-
-  <!-- STAR -->
-  <div class="card">
-    <div class="ct">📝 Registro STAR</div>
-    <div style="background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:14px;margin-bottom:12px;">
-      <div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--green);margin-bottom:10px;">Nova entrada</div>
-      <div style="margin-bottom:8px;"><label style="font-size:10px;color:var(--text2);display:block;margin-bottom:4px;">Situação</label><input type="text" id="starS" placeholder="Contexto do projeto..."></div>
-      <div style="margin-bottom:8px;"><label style="font-size:10px;color:var(--text2);display:block;margin-bottom:4px;">Tarefa</label><input type="text" id="starT" placeholder="O que você precisava fazer..."></div>
-      <div style="margin-bottom:8px;"><label style="font-size:10px;color:var(--text2);display:block;margin-bottom:4px;">Ação</label><textarea id="starA" placeholder="O que você fez especificamente..."></textarea></div>
-      <div style="margin-bottom:10px;"><label style="font-size:10px;color:var(--text2);display:block;margin-bottom:4px;">Resultado</label><input type="text" id="starR" placeholder="Impacto mensurável..."></div>
-      <button class="btn btn-g btn-sm" onclick="addStar()">Salvar entrada</button>
-    </div>
-    <div id="starList"></div>
-  </div>
-</div>
-
-</main>
-</div><!-- /layout -->
 </div><!-- /app -->
 
-<!-- HAMBURGER -->
-<button class="hmb" id="hmb" onclick="document.getElementById('sidebar').classList.toggle('open')"><span></span><span></span><span></span></button>
-
-<!-- CLOUD BUTTON -->
-<button id="cloudBtn" title="Sincronizar" onclick="manualSync()">☁</button>
-<div id="syncBadge"></div>
+<!-- NAV BAR -->
+<nav class="nav" id="mainNav">
+  <button class="nav-btn active" onclick="goPage('dash',this)">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    Início
+  </button>
+  <button class="nav-btn" onclick="goPage('todo',this)">
+    <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+    Tarefas
+  </button>
+  <button class="nav-btn" onclick="goPage('rotina',this)">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    Rotina
+  </button>
+  <button class="nav-btn" onclick="goPage('treino',this)">
+    <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+    Treino
+  </button>
+  <button class="nav-btn" onclick="goPage('math',this)">
+    <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+    Matemática
+  </button>
+  <button class="nav-btn" onclick="goPage('saude',this)">
+    <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+    Saúde
+  </button>
+  <button class="nav-btn" onclick="goPage('dieta',this)">
+    <svg viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
+    Dieta
+  </button>
+  <button class="nav-btn" onclick="goPage('carreira',this)">
+    <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    Carreira
+  </button>
+</nav>
 
 <!-- LOG MODAL -->
-<div class="modal-ov" id="logModal">
+<div class="modal-overlay" id="logModal">
   <div class="modal">
-    <div class="modal-title" id="logTitle">Registrar série</div>
+    <div class="modal-title" id="logModalTitle">Registrar Série</div>
     <div class="modal-grid">
-      <div class="mf"><label>Peso (kg)</label><input type="number" id="logPeso" placeholder="60"></div>
-      <div class="mf"><label>Reps feitas</label><input type="number" id="logReps" placeholder="12"></div>
+      <div class="modal-field"><label>Peso (kg)</label><input type="number" id="logPeso" placeholder="Ex: 60"></div>
+      <div class="modal-field"><label>Reps feitas</label><input type="number" id="logReps" placeholder="Ex: 12"></div>
     </div>
-    <div style="margin-bottom:12px;"><label style="font-size:10px;color:var(--text2);display:block;margin-bottom:5px;">Obs</label><input type="text" id="logObs" placeholder="Sensação, dificuldade..."></div>
-    <div class="modal-btns"><button class="btn btn-g" style="flex:1;" onclick="saveLog()">Salvar</button><button class="btn btn-gh" onclick="closeModal()">Cancelar</button></div>
+    <div style="margin-bottom:14px;"><label style="font-size:11px;color:var(--text2);display:block;margin-bottom:6px;">Observação</label><input type="text" id="logObs" placeholder="Sensação, dificuldade..."></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" style="flex:1;" onclick="saveLog()">Salvar</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+    </div>
   </div>
 </div>
 
-<script>
-// ══════════════════════════════════════════
-// CONFIG — SUPABASE
-// ══════════════════════════════════════════
-const SUPABASE_URL = 'https://vsgrjlnlclseoaknnlmu.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzZ3JqbG5sY2xzZW9ha25ubG11Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0NDI0ODAsImV4cCI6MjA5MTAxODQ4MH0.km7tbk0NoquS_9S3tnpa3Tu0Rt_p13wNHAs1w4Rjbs4';
-const PASS = 'vbb2025';
 
-// ══════════════════════════════════════════
+<script>
+// ═══════════════════════════════════════
+// CONFIG — PREENCHA APÓS CRIAR O SUPABASE
+// ═══════════════════════════════════════
+const SUPABASE_URL = 'https://vsgrjlnlclseoaknnlmu.supabase.co';       // ex: https://xyzxyz.supabase.co
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzZ3JqbG5sY2xzZW9ha25ubG11Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0NDI0ODAsImV4cCI6MjA5MTAxODQ4MH0.km7tbk0NoquS_9S3tnpa3Tu0Rt_p13wNHAs1w4Rjbs4';  // anon/public key
+const PASS = 'vbb2025'; // senha do app — pode trocar
+
+// ═══════════════════════════════════════
 // SUPABASE CLIENT
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════
 let _sb = null;
 function getSB(){
   if(_sb) return _sb;
-  if(typeof supabase !== 'undefined'){
-    try{ _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY); }catch(e){}
+  if(typeof supabase !== 'undefined' && SUPABASE_URL !== 'COLE_SUA_URL_AQUI'){
+    _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   }
   return _sb;
 }
 
-// ══════════════════════════════════════════
-// STORAGE — localStorage + Supabase debounced
-// ══════════════════════════════════════════
-let _q = {}, _syncT = null;
-function save(k,v){
-  try{ localStorage.setItem('vbb_'+k, JSON.stringify(v)); }catch(e){}
-  _q[k]=v; clearTimeout(_syncT);
-  _syncT = setTimeout(flush, 800);
-}
-function load(k,def){
-  try{ const v=localStorage.getItem('vbb_'+k); return v!==null?JSON.parse(v):def; }catch(e){ return def; }
-}
-async function flush(){
-  const sb=getSB(); if(!sb){ _q={}; return; }
-  const entries=Object.entries(_q); _q={};
-  for(const [k,v] of entries){
-    try{ await sb.from('vbb_data').upsert({key:k,value:JSON.stringify(v),updated_at:new Date().toISOString()},{onConflict:'key'}); }catch(e){}
-  }
-  showSync('✓ Sincronizado');
-}
-async function pull(){
-  const sb=getSB(); if(!sb) return;
-  try{
-    const {data,error}=await sb.from('vbb_data').select('key,value');
-    if(error) throw error;
-    for(const r of data||[]){ try{ localStorage.setItem('vbb_'+r.key, r.value); }catch(e){} }
-    showSync('☁ Dados carregados');
-  }catch(e){ console.warn(e); }
-}
-function showSync(msg){
-  const b=document.getElementById('syncBadge');
-  if(!b) return;
-  b.textContent=msg; b.style.opacity='1';
-  setTimeout(()=>b.style.opacity='0',2500);
-}
-async function manualSync(){
-  document.getElementById('cloudBtn').style.color='var(--green)';
-  await pull(); renderAll();
-  setTimeout(()=>document.getElementById('cloudBtn').style.color='',1500);
+// ═══════════════════════════════════════
+// STORAGE HÍBRIDO: Supabase + localStorage fallback
+// Todos os dados ficam na tabela `vbb_data` com coluna key/value
+// ═══════════════════════════════════════
+const KEY = k => 'vbb_' + k;
+let _syncQueue = {};
+let _syncTimer = null;
+
+// Salva local imediatamente, sincroniza com Supabase em 800ms (debounce)
+function save(k, v){
+  try{ localStorage.setItem(KEY(k), JSON.stringify(v)); }catch(e){}
+  _syncQueue[k] = v;
+  clearTimeout(_syncTimer);
+  _syncTimer = setTimeout(flushSync, 800);
 }
 
-// ══════════════════════════════════════════
+function load(k, def){
+  try{
+    const v = localStorage.getItem(KEY(k));
+    return v !== null ? JSON.parse(v) : def;
+  }catch(e){ return def; }
+}
+
+// Envia todos os saves pendentes para o Supabase
+async function flushSync(){
+  const sb = getSB();
+  if(!sb){ _syncQueue={}; return; }
+  const entries = Object.entries(_syncQueue);
+  _syncQueue = {};
+  for(const [k,v] of entries){
+    try{
+      await sb.from('vbb_data').upsert({key:k, value:JSON.stringify(v), updated_at: new Date().toISOString()},{onConflict:'key'});
+    }catch(e){ console.warn('Sync error:', e); }
+  }
+  showSyncBadge('✓ Sincronizado');
+}
+
+// Puxa todos os dados do Supabase e sobrescreve localStorage
+async function pullFromCloud(){
+  const sb = getSB();
+  if(!sb) return;
+  try{
+    const {data,error} = await sb.from('vbb_data').select('key,value');
+    if(error) throw error;
+    for(const row of data||[]){
+      try{ localStorage.setItem(KEY(row.key), row.value); }catch(e){}
+    }
+    showSyncBadge('☁ Dados sincronizados');
+  }catch(e){ console.warn('Pull error:', e); }
+}
+
+function showSyncBadge(msg){
+  let badge = document.getElementById('syncBadge');
+  if(!badge){
+    badge = document.createElement('div');
+    badge.id = 'syncBadge';
+    badge.style.cssText='position:fixed;bottom:72px;right:12px;z-index:500;background:rgba(20,20,23,0.95);border:1px solid var(--border2);border-radius:8px;padding:5px 12px;font-size:10px;letter-spacing:1px;color:var(--accent);pointer-events:none;transition:opacity 0.4s;';
+    document.body.appendChild(badge);
+  }
+  badge.textContent = msg;
+  badge.style.opacity='1';
+  setTimeout(()=>badge.style.opacity='0',2500);
+}
+
+// ═══════════════════════════════════════
+// SETUP — cria tabela no Supabase se não existir
+// (rode isso uma vez no SQL Editor do Supabase)
+// CREATE TABLE IF NOT EXISTS vbb_data (
+//   key TEXT PRIMARY KEY,
+//   value TEXT,
+//   updated_at TIMESTAMPTZ DEFAULT now()
+// );
+// ALTER TABLE vbb_data ENABLE ROW LEVEL SECURITY;
+// CREATE POLICY "allow all" ON vbb_data FOR ALL USING (true) WITH CHECK (true);
+// ═══════════════════════════════════════
+
+// ═══════════════════════════════════════
 // LOCK
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════
 async function tryUnlock(){
-  const pin=document.getElementById('pinInput').value;
-  const err=document.getElementById('lkErr');
-  const btn=document.querySelector('.lk-btn');
-  if(pin===PASS){
-    btn.textContent='Carregando...'; btn.style.opacity='.7';
-    await pull();
-    document.getElementById('lockScreen').style.display='none';
-    document.getElementById('app').style.display='block';
-    sessionStorage.setItem('vbb_auth','1');
+  const pin = document.getElementById('pinInput').value;
+  const err = document.getElementById('lockError');
+  const btn = document.querySelector('.lock-btn');
+  if(pin === PASS){
+    btn.textContent = 'Carregando...';
+    btn.style.opacity = '0.7';
+    await pullFromCloud(); // puxa dados do Supabase antes de abrir
+    document.getElementById('lockScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
     initApp();
   } else {
-    err.textContent='Senha incorreta';
-    document.getElementById('pinInput').value='';
-    setTimeout(()=>err.textContent='',2000);
+    err.textContent = 'Senha incorreta';
+    document.getElementById('pinInput').value = '';
+    setTimeout(()=>err.textContent='', 2000);
   }
 }
-document.addEventListener('DOMContentLoaded',()=>{
-  document.getElementById('pinInput').addEventListener('keydown',e=>{ if(e.key==='Enter') tryUnlock(); });
-  if(sessionStorage.getItem('vbb_auth')==='1'){
-    document.getElementById('lockScreen').style.display='none';
-    document.getElementById('app').style.display='block';
-    setTimeout(async()=>{ await pull(); initApp(); },50);
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('pinInput').addEventListener('keydown', e => { if(e.key === 'Enter') tryUnlock(); });
+
+  // Auto-unlock se já autenticado nesta sessão
+  if(sessionStorage.getItem('vbb_auth') === '1'){
+    document.getElementById('lockScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    setTimeout(async ()=>{ await pullFromCloud(); initApp(); }, 50);
   }
 });
 
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════
 // NAVIGATION
-// ══════════════════════════════════════════
-function goPage(id,btn){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
-  document.getElementById('page-'+id).classList.add('active');
-  if(btn) btn.classList.add('active');
-  document.getElementById('sidebar').classList.remove('open');
-  document.querySelector('.main').scrollTo(0,0);
+// ═══════════════════════════════════════
+function goPage(id, btn){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('p-' + id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo(0,0);
 }
 
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════
 // INIT
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════
 function initApp(){
-  renderAll();
-  setInterval(()=>{ if(document.getElementById('page-dash').classList.contains('active')) renderDash(); },60000);
-  setInterval(async()=>{ if(navigator.onLine){ await pull(); renderAll(); }},5*60*1000);
-}
-function renderAll(){
-  renderDate();
+  sessionStorage.setItem('vbb_auth','1');
   renderDash();
   renderTodo();
   renderRotina();
   renderTreino();
-  renderDieta();
   renderMath();
-  renderStar();
-  renderWater();
+  renderDieta();
+  renderCarreira();
+  renderSaude();
+  injectSyncBtn();
+  // Auto-sync a cada 5 min quando online
+  setInterval(async ()=>{
+    if(navigator.onLine){ await pullFromCloud(); renderDash(); renderTodo(); }
+  }, 5*60*1000);
 }
 
-// ══════════════════════════════════════════
-// DATE
-// ══════════════════════════════════════════
-const DAYS_PT=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
-const DAYS_SH=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-const MONTHS=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
-function todayKey(){ const d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
-function renderDate(){
-  const n=new Date();
-  document.getElementById('sbDay').textContent=DAYS_PT[n.getDay()];
-  document.getElementById('sbDate').textContent=n.getDate()+' de '+MONTHS[n.getMonth()];
+function injectSyncBtn(){
+  if(document.getElementById('syncBtn')) return;
+  const btn = document.createElement('button');
+  btn.id = 'syncBtn';
+  btn.title = 'Sincronizar agora';
+  btn.innerHTML = '☁';
+  btn.style.cssText = 'position:fixed;top:12px;right:12px;z-index:500;width:36px;height:36px;border-radius:50%;background:var(--card);border:1px solid var(--border2);color:var(--text2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:color 0.2s;';
+  btn.onclick = async ()=>{ btn.style.color='var(--accent)'; await pullFromCloud(); renderDash(); renderTodo(); renderMath(); setTimeout(()=>btn.style.color='var(--text2)',1500); };
+  document.body.appendChild(btn);
+  const sbOk = getSB();
+  if(!sbOk) btn.title = 'Supabase não configurado';
 }
 
-// ══════════════════════════════════════════
-// WATER
-// ══════════════════════════════════════════
-function renderWater(){
-  const w=load('water_'+todayKey(),0);
-  ['sbCups','dashCups'].forEach(id=>{
-    const el=document.getElementById(id); if(!el) return;
-    el.innerHTML='';
-    for(let i=0;i<14;i++){
-      const c=document.createElement('div');
-      c.className='sw-cup'+(i<w?' on':'');
-      c.onclick=()=>{ const cur=load('water_'+todayKey(),0); save('water_'+todayKey(),c.classList.contains('on')?i:i+1); renderWater(); renderDash(); };
-      el.appendChild(c);
-    }
-  });
-  document.getElementById('dsAgua').textContent=w;
-}
-
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════
 // DASHBOARD
-// ══════════════════════════════════════════
-const CAT_COLORS={sono:'#7ab0ff',work:'#b87a2a',math:'#2d5a27',gym:'#8c3a3a',uni:'#4a2d7c',cultura:'#b8963e',ia:'#141414',free:'#aaa',food:'#5a9a5a'};
-const CAT_LBL={sono:'Sono',work:'Trabalho',math:'Matemática',gym:'Academia',uni:'Faculdade',cultura:'Capital Cultural',ia:'Workflow IA',free:'Livre',food:'Refeição'};
+// ═══════════════════════════════════════
+const DAYS = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+const MONTHS = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
 
 function renderDash(){
-  const n=new Date();
-  document.getElementById('dashSub').textContent=DAYS_PT[n.getDay()]+', '+n.getDate()+' de '+MONTHS[n.getMonth()]+' de '+n.getFullYear();
-  const todos=load('todos',[]);
-  const pend=todos.filter(t=>!t.done).length;
-  document.getElementById('dsTodo').textContent=pend;
-  document.getElementById('sbTodoBadge').textContent=pend;
-  const mathDone=load('math_weeks',[]);
-  document.getElementById('dsMath').textContent=mathDone.length+'/12';
-  const logs=load('treino_logs',[]);
-  document.getElementById('dsTreino').textContent=logs.filter(l=>new Date(l.date).getMonth()===n.getMonth()&&l.ex==='__done__').length;
-  // todos preview
-  const p=todos.filter(t=>!t.done).slice(0,3);
-  document.getElementById('dashTodos').innerHTML=p.length?p.map(t=>`<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--text)">${t.text}<span class="pill p-${t.pri==='alta'?'rd':t.pri==='media'?'o':'g'}" style="margin-left:6px;">${t.pri}</span></div>`).join('')+'<div style="font-size:10px;color:var(--text3);margin-top:6px;">'+pend+' tarefa(s) pendente(s)</div>':'<span style="color:var(--text3);font-size:12px;">✓ Nenhuma tarefa pendente</span>';
-  // rotina now
-  const cur=n.getHours()*60+n.getMinutes();
-  const blocks=ROTINA[n.getDay()]||[];
-  const nowB=blocks.find(b=>{ const s=tMin(b.t),e=tMin(b.e); return s<=e?(cur>=s&&cur<e):(cur>=s||cur<e); });
-  document.getElementById('dashNow').innerHTML=nowB?`<strong style="color:var(--text)">${nowB.n}</strong><br><span style="font-size:10px;color:var(--text3)">${CAT_LBL[nowB.c]||nowB.c} · até ${nowB.e}</span>`:'<span style="color:var(--text3);font-size:12px;">Sem atividade agendada agora</span>';
-  renderWater();
+  const now = new Date();
+  document.getElementById('dashDate').textContent =
+    DAYS[now.getDay()] + ', ' + now.getDate() + ' de ' + MONTHS[now.getMonth()] + ' de ' + now.getFullYear();
+
+  // water cups
+  const cups = document.getElementById('waterCups');
+  cups.innerHTML = '';
+  const wCount = load('water_' + todayKey(), 0);
+  for(let i=0;i<14;i++){
+    const c = document.createElement('div');
+    c.className = 'wcup' + (i < wCount ? ' on' : '');
+    c.onclick = () => {
+      const cur = load('water_' + todayKey(), 0);
+      const nv = c.classList.contains('on') ? i : i+1;
+      save('water_' + todayKey(), nv);
+      renderDash();
+      document.getElementById('statWater').textContent = nv;
+    };
+    cups.appendChild(c);
+  }
+  document.getElementById('waterCount').textContent = wCount + ' / 14 copos';
+  document.getElementById('statWater').textContent = wCount;
+
+  // todos
+  const todos = load('todos', []);
+  const pending = todos.filter(t => !t.done);
+  document.getElementById('statTodo').textContent = pending.length;
+  const dashT = document.getElementById('dashTodos');
+  if(pending.length === 0){ dashT.textContent = 'Nenhuma tarefa pendente ✓'; }
+  else {
+    dashT.innerHTML = pending.slice(0,3).map(t =>
+      `<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text)">${t.text} <span class="pill pill-${t.priority==='alta'?'red':t.priority==='media'?'orange':'green'}">${t.priority}</span></div>`
+    ).join('') + (pending.length > 3 ? `<div style="font-size:12px;color:var(--text2);margin-top:8px;">+ ${pending.length-3} mais</div>` : '');
+  }
+
+  // math weeks
+  const mathDone = load('math_weeks', []);
+  document.getElementById('statMath').textContent = mathDone.length + '/12';
+
+  // treinos mês
+  const logs = load('treino_logs', []);
+  const thisMonth = new Date().getMonth();
+  const treinoMes = logs.filter(l => new Date(l.date).getMonth() === thisMonth).length;
+  document.getElementById('statTreino').textContent = treinoMes;
+
+  // rotina agora
+  const h = now.getHours(), m = now.getMinutes();
+  const t = h*60+m;
+  const rotinaAgora = getCurrentRotina(now.getDay(), t);
+  document.getElementById('dashRotina').innerHTML = rotinaAgora ||
+    '<span style="color:var(--text2)">Sem atividade programada agora</span>';
 }
 
-// ══════════════════════════════════════════
-// TODO
-// ══════════════════════════════════════════
-let tFilter='all';
-function addTodo(){
-  const txt=document.getElementById('todoIn').value.trim(); if(!txt) return;
-  const todos=load('todos',[]);
-  todos.unshift({id:Date.now(),text:txt,pri:document.getElementById('todoPri').value,cat:document.getElementById('todoCat').value,done:false,created:new Date().toISOString()});
-  save('todos',todos);
-  document.getElementById('todoIn').value='';
-  renderTodo(); renderDash();
+function todayKey(){
+  const d = new Date();
+  return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
 }
-function toggleTodo(id){ const t=load('todos',[]); const x=t.find(i=>i.id==id); if(x) x.done=!x.done; save('todos',t); renderTodo(); renderDash(); }
-function deleteTodo(id){ if(!confirm('Excluir?')) return; save('todos',load('todos',[]).filter(i=>i.id!=id)); renderTodo(); renderDash(); }
-function editTodo(id){ const t=load('todos',[]); const x=t.find(i=>i.id==id); if(!x) return; const v=prompt('Editar:',x.text); if(v&&v.trim()){ x.text=v.trim(); save('todos',t); renderTodo(); } }
-function filterT(f,btn){
-  tFilter=f;
-  document.querySelectorAll('#page-todo .btn').forEach(b=>{ b.classList.remove('btn-g'); b.classList.add('btn-gh'); });
-  if(btn){ btn.classList.remove('btn-gh'); btn.classList.add('btn-g'); }
+
+// ═══════════════════════════════════════
+// TODO
+// ═══════════════════════════════════════
+let todoFilter = 'all';
+
+function addTodo(){
+  const text = document.getElementById('todoInput').value.trim();
+  if(!text) return;
+  const todos = load('todos', []);
+  todos.unshift({
+    id: Date.now(),
+    text,
+    priority: document.getElementById('todoPriority').value,
+    category: document.getElementById('todoCategory').value,
+    done: false,
+    created: new Date().toISOString()
+  });
+  save('todos', todos);
+  document.getElementById('todoInput').value = '';
+  renderTodo();
+  renderDash();
+}
+
+function toggleTodo(id){
+  const todos = load('todos', []);
+  const t = todos.find(x => x.id == id);
+  if(t) t.done = !t.done;
+  save('todos', todos);
+  renderTodo();
+  renderDash();
+}
+
+function deleteTodo(id){
+  if(!confirm('Excluir tarefa?')) return;
+  save('todos', load('todos',[]).filter(x => x.id != id));
+  renderTodo();
+  renderDash();
+}
+
+function editTodo(id){
+  const todos = load('todos', []);
+  const t = todos.find(x => x.id == id);
+  if(!t) return;
+  const nv = prompt('Editar tarefa:', t.text);
+  if(nv && nv.trim()){ t.text = nv.trim(); save('todos', todos); renderTodo(); }
+}
+
+function filterTodo(f){
+  todoFilter = f;
+  document.querySelectorAll('#p-todo .btn').forEach(b => b.classList.remove('btn-primary'));
+  document.querySelectorAll('#p-todo .btn').forEach(b => b.classList.add('btn-ghost'));
+  const btn = document.getElementById(f==='all'?'fAll':f==='pending'?'fPend':'fDone');
+  if(btn){ btn.classList.remove('btn-ghost'); btn.classList.add('btn-primary'); }
   renderTodo();
 }
+
 function renderTodo(){
-  const todos=load('todos',[]);
-  const f=todos.filter(t=>tFilter==='all'||(tFilter==='done'&&t.done)||(tFilter==='pending'&&!t.done));
-  const list=document.getElementById('todoList'); if(!list) return;
-  if(!f.length){ list.innerHTML='<div style="text-align:center;padding:24px;color:var(--text3);font-size:12px;">Nenhuma tarefa aqui.</div>'; return; }
-  list.innerHTML=f.map(t=>`
-    <div class="todo-row ${t.done?'done':''}">
-      <div class="pri-bar" style="background:${t.pri==='alta'?'var(--red)':t.pri==='media'?'var(--orange)':'var(--green2)'}"></div>
-      <div class="cb ${t.done?'on':''}" onclick="toggleTodo(${t.id})">${t.done?'✓':''}</div>
-      <div style="flex:1;"><div class="todo-txt">${t.text}</div><div class="todo-cat">${t.cat}</div></div>
-      <div style="display:flex;gap:4px;">
-        <button class="ib" onclick="editTodo(${t.id})">✎</button>
-        <button class="ib del" onclick="deleteTodo(${t.id})">✕</button>
+  const todos = load('todos', []);
+  const filtered = todos.filter(t => todoFilter==='all'||(todoFilter==='done'&&t.done)||(todoFilter==='pending'&&!t.done));
+  const list = document.getElementById('todoList');
+  if(filtered.length === 0){ list.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text2);font-size:13px;">Nenhuma tarefa aqui.</div>'; return; }
+  list.innerHTML = filtered.map(t => `
+    <div class="todo-item ${t.done?'done':''}">
+      <div class="todo-priority p-${t.priority}"></div>
+      <div class="todo-check ${t.done?'on':''}" onclick="toggleTodo(${t.id})"></div>
+      <div class="todo-text">${t.text}<br><span style="font-size:10px;color:var(--text3);">${t.category}</span></div>
+      <div class="todo-actions">
+        <button class="icon-btn" onclick="editTodo(${t.id})" title="Editar">✎</button>
+        <button class="icon-btn del" onclick="deleteTodo(${t.id})" title="Excluir">✕</button>
       </div>
-    </div>`).join('');
+    </div>
+  `).join('');
 }
 
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════
 // ROTINA DATA
-// ══════════════════════════════════════════
-const ROTINA={
-  0:[{t:'00:00',e:'08:30',n:'Sono longo',c:'sono'},{t:'08:30',e:'12:00',n:'Manhã livre / família',c:'free'},{t:'12:00',e:'12:30',n:'Filosofia / Sociologia',c:'cultura',nv:1},{t:'12:30',e:'12:50',n:'Vocabulário do dia',c:'cultura',nv:1},{t:'12:50',e:'13:00',n:'Arte do dia',c:'cultura',nv:1},{t:'13:00',e:'14:00',n:'Almoço',c:'food'},{t:'14:00',e:'16:00',n:'Matemática — exercícios práticos',c:'math'},{t:'16:00',e:'17:30',n:'Planejamento semana + Workflow IA',c:'ia',nv:1},{t:'17:30',e:'23:00',n:'Descanso total',c:'free'}],
-  1:[{t:'00:00',e:'07:00',n:'Sono',c:'sono'},{t:'07:00',e:'08:30',n:'Matemática — pico cognitivo',c:'math'},{t:'08:30',e:'09:00',n:'Café + preparo',c:'food'},{t:'09:00',e:'12:00',n:'Trabalho — Kyndryl',c:'work'},{t:'12:00',e:'12:30',n:'Filosofia / Sociologia',c:'cultura',nv:1},{t:'12:30',e:'12:50',n:'Vocabulário do dia',c:'cultura',nv:1},{t:'12:50',e:'13:00',n:'Workflow IA — agentes/specs',c:'ia',nv:1},{t:'13:00',e:'13:10',n:'Arte do dia (durante refeição)',c:'cultura',nv:1},{t:'13:00',e:'16:30',n:'Trabalho — Kyndryl',c:'work'},{t:'16:30',e:'18:00',n:'Academia — Treino A (Peito+Tríceps)',c:'gym'},{t:'18:00',e:'19:00',n:'Jantar + banho',c:'food'},{t:'19:00',e:'22:30',n:'Faculdade',c:'uni'},{t:'22:30',e:'23:00',n:'Higiene do sono',c:'free'}],
-  2:[{t:'00:00',e:'07:00',n:'Sono',c:'sono'},{t:'07:00',e:'08:30',n:'Matemática — pico cognitivo',c:'math'},{t:'08:30',e:'09:00',n:'Café + preparo',c:'food'},{t:'09:00',e:'12:00',n:'Trabalho — Kyndryl',c:'work'},{t:'12:00',e:'12:30',n:'Filosofia / Sociologia',c:'cultura',nv:1},{t:'12:30',e:'12:50',n:'Vocabulário do dia',c:'cultura',nv:1},{t:'12:50',e:'13:00',n:'Workflow IA',c:'ia',nv:1},{t:'13:00',e:'16:30',n:'Trabalho — Kyndryl',c:'work'},{t:'16:30',e:'18:00',n:'Academia — Treino B (Costas+Bíceps)',c:'gym'},{t:'18:00',e:'19:00',n:'Jantar + banho',c:'food'},{t:'19:00',e:'22:30',n:'Faculdade',c:'uni'},{t:'22:30',e:'23:00',n:'Higiene do sono',c:'free'}],
-  3:[{t:'00:00',e:'07:00',n:'Sono',c:'sono'},{t:'07:00',e:'08:30',n:'Matemática — pico cognitivo',c:'math'},{t:'08:30',e:'09:00',n:'Café + preparo',c:'food'},{t:'09:00',e:'12:00',n:'Trabalho — Kyndryl',c:'work'},{t:'12:00',e:'12:30',n:'Filosofia / Arte',c:'cultura',nv:1},{t:'12:30',e:'12:50',n:'Vocabulário',c:'cultura',nv:1},{t:'12:50',e:'13:00',n:'Workflow IA',c:'ia',nv:1},{t:'13:00',e:'16:30',n:'Trabalho — Kyndryl',c:'work'},{t:'16:30',e:'17:30',n:'Descanso ativo — caminhada leve',c:'gym'},{t:'18:00',e:'19:00',n:'Jantar + banho',c:'food'},{t:'19:00',e:'22:30',n:'Faculdade',c:'uni'},{t:'22:30',e:'23:00',n:'Higiene do sono',c:'free'}],
-  4:[{t:'00:00',e:'07:00',n:'Sono',c:'sono'},{t:'07:00',e:'08:30',n:'Matemática — pico cognitivo',c:'math'},{t:'08:30',e:'09:00',n:'Café + preparo',c:'food'},{t:'09:00',e:'12:00',n:'Trabalho — Kyndryl',c:'work'},{t:'12:00',e:'12:30',n:'Filosofia / Sociologia',c:'cultura',nv:1},{t:'12:30',e:'12:50',n:'Vocabulário',c:'cultura',nv:1},{t:'12:50',e:'13:00',n:'Workflow IA',c:'ia',nv:1},{t:'13:00',e:'16:30',n:'Trabalho — Kyndryl',c:'work'},{t:'16:30',e:'18:00',n:'Academia — Treino C (Ombro+Core)',c:'gym'},{t:'18:00',e:'19:00',n:'Jantar + banho',c:'food'},{t:'19:00',e:'22:30',n:'Faculdade',c:'uni'},{t:'22:30',e:'23:00',n:'Higiene do sono',c:'free'}],
-  5:[{t:'00:00',e:'07:00',n:'Sono',c:'sono'},{t:'07:00',e:'08:30',n:'Matemática — pico cognitivo',c:'math'},{t:'08:30',e:'09:00',n:'Café + preparo',c:'food'},{t:'09:00',e:'12:00',n:'Trabalho — Kyndryl',c:'work'},{t:'12:00',e:'12:30',n:'Filosofia / Retórica',c:'cultura',nv:1},{t:'12:30',e:'12:50',n:'Vocabulário + revisão semanal',c:'cultura',nv:1},{t:'12:50',e:'13:00',n:'Workflow IA — revisão',c:'ia',nv:1},{t:'13:00',e:'16:30',n:'Trabalho — Kyndryl',c:'work'},{t:'16:30',e:'18:00',n:'Academia — Treino D (Perna)',c:'gym'},{t:'18:00',e:'19:00',n:'Jantar + banho',c:'food'},{t:'19:00',e:'22:30',n:'Faculdade',c:'uni'},{t:'22:30',e:'23:00',n:'Higiene do sono',c:'free'}],
-  6:[{t:'00:00',e:'07:00',n:'Sono',c:'sono'},{t:'07:00',e:'07:40',n:'Café + preparo faculdade',c:'food'},{t:'07:40',e:'13:00',n:'Faculdade',c:'uni'},{t:'13:00',e:'14:00',n:'Almoço',c:'food'},{t:'14:00',e:'16:00',n:'Matemática — revisão semanal',c:'math'},{t:'16:00',e:'17:00',n:'Capital Cultural profundo — Filosofia + Arte',c:'cultura',nv:1},{t:'17:00',e:'17:30',n:'Vocabulário — revisão + 5 palavras novas',c:'cultura',nv:1},{t:'17:30',e:'18:00',n:'Workflow IA — planejar semana',c:'ia',nv:1},{t:'18:00',e:'23:00',n:'Lazer / vida social',c:'free'}],
+// ═══════════════════════════════════════
+const ROTINA = {
+  0: [ // DOM
+    {t:'23:00',e:'08:30',n:'Sono longo — recuperação semanal',c:'sono'},
+    {t:'08:30',e:'12:00',n:'Manhã livre — lazer, família',c:'livre'},
+    {t:'12:00',e:'13:00',n:'Almoço',c:'refeicao'},
+    {t:'14:00',e:'16:00',n:'Matemática — exercícios práticos',c:'math'},
+    {t:'16:00',e:'17:30',n:'Planejamento semana + revisão carreira',c:'carreira'},
+    {t:'17:30',e:'23:00',n:'Descanso total — preparo mental',c:'livre'},
+  ],
+  1: [ // SEG HO
+    {t:'07:00',e:'08:30',n:'Matemática — pico cognitivo',c:'math'},
+    {t:'08:30',e:'09:00',n:'Café + preparo trabalho',c:'refeicao'},
+    {t:'09:00',e:'12:00',n:'Trabalho Home Office — Kyndryl',c:'trabalho'},
+    {t:'12:00',e:'13:00',n:'Almoço + Carreira (AWS/Security+)',c:'carreira'},
+    {t:'13:00',e:'16:30',n:'Trabalho Home Office — Kyndryl',c:'trabalho'},
+    {t:'16:30',e:'18:00',n:'Academia — Treino A (Peito+Tríceps+Ombro)',c:'academia'},
+    {t:'18:00',e:'19:00',n:'Jantar + banho',c:'refeicao'},
+    {t:'19:00',e:'22:30',n:'Faculdade',c:'faculdade'},
+    {t:'22:30',e:'23:00',n:'Higiene do sono',c:'livre'},
+  ],
+  2: [ // TER
+    {t:'07:00',e:'08:30',n:'Matemática — pico cognitivo',c:'math'},
+    {t:'08:30',e:'09:00',n:'Café + preparo',c:'refeicao'},
+    {t:'09:00',e:'12:00',n:'Trabalho Home Office — Kyndryl',c:'trabalho'},
+    {t:'12:00',e:'13:00',n:'Almoço + Carreira (AWS/Inglês)',c:'carreira'},
+    {t:'13:00',e:'16:30',n:'Trabalho Home Office — Kyndryl',c:'trabalho'},
+    {t:'16:30',e:'18:00',n:'Academia — Treino B (Costas+Bíceps)',c:'academia'},
+    {t:'18:00',e:'19:00',n:'Jantar + banho',c:'refeicao'},
+    {t:'19:00',e:'22:30',n:'Faculdade',c:'faculdade'},
+    {t:'22:30',e:'23:00',n:'Higiene do sono',c:'livre'},
+  ],
+  3: [ // QUA
+    {t:'07:00',e:'08:30',n:'Matemática — pico cognitivo',c:'math'},
+    {t:'08:30',e:'09:00',n:'Café + preparo',c:'refeicao'},
+    {t:'09:00',e:'12:00',n:'Trabalho Home Office — Kyndryl',c:'trabalho'},
+    {t:'12:00',e:'13:00',n:'Almoço + Carreira',c:'carreira'},
+    {t:'13:00',e:'16:30',n:'Trabalho Home Office — Kyndryl',c:'trabalho'},
+    {t:'16:30',e:'17:30',n:'Descanso ativo — caminhada leve',c:'academia'},
+    {t:'18:00',e:'19:00',n:'Jantar + banho',c:'refeicao'},
+    {t:'19:00',e:'22:30',n:'Faculdade',c:'faculdade'},
+    {t:'22:30',e:'23:00',n:'Higiene do sono',c:'livre'},
+  ],
+  4: [ // QUI
+    {t:'07:00',e:'08:30',n:'Matemática — pico cognitivo',c:'math'},
+    {t:'08:30',e:'09:00',n:'Café + preparo',c:'refeicao'},
+    {t:'09:00',e:'12:00',n:'Trabalho Home Office — Kyndryl',c:'trabalho'},
+    {t:'12:00',e:'13:00',n:'Almoço + Carreira',c:'carreira'},
+    {t:'13:00',e:'16:30',n:'Trabalho Home Office — Kyndryl',c:'trabalho'},
+    {t:'16:30',e:'18:00',n:'Academia — Treino C (Ombro+Core)',c:'academia'},
+    {t:'18:00',e:'19:00',n:'Jantar + banho',c:'refeicao'},
+    {t:'19:00',e:'22:30',n:'Faculdade',c:'faculdade'},
+    {t:'22:30',e:'23:00',n:'Higiene do sono',c:'livre'},
+  ],
+  5: [ // SEX
+    {t:'07:00',e:'08:30',n:'Matemática — pico cognitivo',c:'math'},
+    {t:'08:30',e:'09:00',n:'Café + preparo',c:'refeicao'},
+    {t:'09:00',e:'12:00',n:'Trabalho Home Office — Kyndryl',c:'trabalho'},
+    {t:'12:00',e:'13:00',n:'Almoço + Carreira',c:'carreira'},
+    {t:'13:00',e:'16:30',n:'Trabalho Home Office — Kyndryl',c:'trabalho'},
+    {t:'16:30',e:'18:00',n:'Academia — Treino D (Perna)',c:'academia'},
+    {t:'18:00',e:'19:00',n:'Jantar + banho',c:'refeicao'},
+    {t:'19:00',e:'22:30',n:'Faculdade',c:'faculdade'},
+    {t:'22:30',e:'23:00',n:'Higiene do sono',c:'livre'},
+  ],
+  6: [ // SAB
+    {t:'07:00',e:'07:40',n:'Café + preparo faculdade',c:'refeicao'},
+    {t:'07:40',e:'13:00',n:'Faculdade',c:'faculdade'},
+    {t:'13:00',e:'14:00',n:'Almoço',c:'refeicao'},
+    {t:'14:00',e:'16:00',n:'Matemática — revisão semanal',c:'math'},
+    {t:'16:00',e:'18:00',n:'Carreira + projetos GitHub',c:'carreira'},
+    {t:'18:00',e:'23:00',n:'Lazer / vida social',c:'livre'},
+  ],
 };
-function tMin(ts){ const [h,m]=ts.split(':').map(Number); return h*60+m; }
-let rotDay=new Date().getDay();
-function renderRotina(){
-  const strip=document.getElementById('rotDays');
-  if(!strip) return;
-  strip.innerHTML=DAYS_PT.map((d,i)=>`<button style="flex-shrink:0;padding:7px 13px;border-radius:100px;border:1.5px solid ${i===rotDay?'var(--green)':'var(--border2)'};background:${i===rotDay?'var(--green-l)':'var(--card)'};color:${i===rotDay?'var(--green)':'var(--text2)'};font-size:11px;cursor:pointer;" onclick="selectRotDay(${i},this)">${DAYS_SH[i]}</button>`).join('');
-  renderRotDay(rotDay);
+
+function tToMin(ts){ const [h,m]=ts.split(':').map(Number); return h*60+m; }
+
+function getCurrentRotina(day, tMin){
+  const blocks = ROTINA[day] || [];
+  for(const b of blocks){
+    const s = tToMin(b.t), e = tToMin(b.e);
+    if(s <= e ? (tMin>=s && tMin<e) : (tMin>=s || tMin<e)){
+      return `<strong style="color:var(--text)">${b.n}</strong> <span class="pill pill-accent" style="font-size:9px;">${b.t}</span>`;
+    }
+  }
+  return null;
 }
-function selectRotDay(i){ rotDay=i; renderRotina(); }
-function renderRotDay(day){
-  const blocks=ROTINA[day]||[];
-  document.getElementById('rotDayTitle').textContent='📅 '+DAYS_PT[day];
-  const n=new Date(); const cur=n.getHours()*60+n.getMinutes(); const isToday=day===n.getDay();
-  document.getElementById('rotTl').innerHTML=blocks.map(b=>{
-    const sM=tMin(b.t),eM=tMin(b.e);
-    const now=isToday&&(sM<=eM?(cur>=sM&&cur<eM):(cur>=sM||cur<eM));
-    return `<div class="tl-row ${now?'now':''}">
-      <div class="tl-dot" style="background:${CAT_COLORS[b.c]||'#aaa'}"></div>
-      <div class="tl-t">${b.t}</div>
-      <div class="tl-bd">
-        <div class="tl-n">${b.n}${b.nv?'<span class="new-tag">NOVO</span>':''}${now?' <span style="font-size:9px;color:var(--green);margin-left:4px;">● Agora</span>':''}</div>
-        <div class="tl-c">${CAT_LBL[b.c]||b.c} · até ${b.e}</div>
+
+function renderRotina(){
+  const tabs = document.getElementById('rotinaTabs');
+  const days = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const today = new Date().getDay();
+  tabs.innerHTML = days.map((d,i) =>
+    `<button class="day-tab ${i===today?'active':''}" onclick="showRotinaDay(${i},this)">${d}</button>`
+  ).join('');
+  showRotinaDay(today);
+}
+
+function showRotinaDay(day, btn){
+  if(btn){
+    document.querySelectorAll('.day-tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  const blocks = ROTINA[day] || [];
+  const catLabel = {sono:'Sono',trabalho:'Trabalho',math:'Matemática',academia:'Academia',faculdade:'Faculdade',carreira:'Carreira',livre:'Livre/Lazer',refeicao:'Refeição'};
+  document.getElementById('rotinaContent').innerHTML = blocks.map(b => `
+    <div class="rotina-block">
+      <div class="rotina-dot cat-${b.c}"></div>
+      <div class="rotina-time">${b.t}</div>
+      <div class="rotina-content">
+        <div class="rotina-name">${b.n}</div>
+        <div class="rotina-cat">${catLabel[b.c]||b.c} · até ${b.e}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════
+// TREINO DATA
+// ═══════════════════════════════════════
+const TREINOS = [
+  { dia:'SEGUNDA', nome:'Treino A — Peito + Tríceps + Ombro', tag:'55–65 min', exercicios:[
+    {n:'Bike ergométrica (aquecimento)',s:'1',r:'10 min'},
+    {n:'Supino reto com barra',s:'4',r:'8–12'},
+    {n:'Supino inclinado haltere',s:'3',r:'10–12'},
+    {n:'Crossover / Voador máquina',s:'3',r:'12–15'},
+    {n:'Desenvolvimento ombro máquina',s:'4',r:'10–12'},
+    {n:'Elevação lateral sentado',s:'3',r:'12–15'},
+    {n:'Tríceps polia corda',s:'3',r:'12–15'},
+    {n:'Tríceps francês sentado',s:'3',r:'10–12'},
+    {n:'Bike Zona 2 (pós-treino)',s:'1',r:'20–40 min'},
+  ]},
+  { dia:'TERÇA', nome:'Treino B — Costas + Bíceps', tag:'55–65 min', exercicios:[
+    {n:'Bike ergométrica (aquecimento)',s:'1',r:'10 min'},
+    {n:'Puxada frontal polia larga',s:'4',r:'8–12'},
+    {n:'Remada curvada com barra',s:'4',r:'8–12'},
+    {n:'Remada unilateral haltere',s:'3',r:'10–12'},
+    {n:'Pullover polia / máquina',s:'3',r:'12–15'},
+    {n:'Rosca direta com barra',s:'3',r:'10–12'},
+    {n:'Rosca martelo sentado',s:'3',r:'12–15'},
+    {n:'Rosca concentrada',s:'2',r:'12–15'},
+    {n:'Bike Zona 2 (pós-treino)',s:'1',r:'20–40 min'},
+  ]},
+  { dia:'QUARTA', nome:'Descanso Ativo', tag:'Recuperação', exercicios:[
+    {n:'Caminhada leve plana',s:'1',r:'20–30 min'},
+    {n:'Mobilidade e alongamento',s:'1',r:'15 min'},
+  ]},
+  { dia:'QUINTA', nome:'Treino C — Ombro + Core + Abdômen', tag:'50–60 min', exercicios:[
+    {n:'Bike ergométrica (aquecimento)',s:'1',r:'8 min'},
+    {n:'Desenvolvimento Arnold sentado',s:'4',r:'10–12'},
+    {n:'Elevação frontal haltere sentado',s:'3',r:'12–15'},
+    {n:'Elevação lateral máquina/cabo',s:'3',r:'12–15'},
+    {n:'Encolhimento trapézio',s:'3',r:'12–15'},
+    {n:'Prancha isométrica',s:'3',r:'45–60s'},
+    {n:'Abdominal supra',s:'3',r:'20–25'},
+    {n:'Elevação de pernas deitado',s:'3',r:'15–20'},
+    {n:'Rotação tronco cabo',s:'3',r:'15 cada'},
+    {n:'Vacuum abdominal',s:'3',r:'30s'},
+    {n:'Bike Zona 2 (pós-treino)',s:'1',r:'20–40 min'},
+  ]},
+  { dia:'SEXTA', nome:'Treino D — Perna Completa', tag:'55–65 min', exercicios:[
+    {n:'Bike ergométrica (aquecimento)',s:'1',r:'8 min'},
+    {n:'Leg press 45°',s:'4',r:'12–15'},
+    {n:'Agachamento Smith (Fase 2+)',s:'3',r:'10–12'},
+    {n:'Extensão joelho máquina',s:'4',r:'12–15'},
+    {n:'Mesa flexora deitado',s:'4',r:'12–15'},
+    {n:'Cadeira abdutora',s:'3',r:'15–20'},
+    {n:'Cadeira adutora',s:'3',r:'15–20'},
+    {n:'Glúteo máquina/cabo',s:'3',r:'15 cada'},
+    {n:'Panturrilha sentado',s:'4',r:'15–20'},
+    {n:'Bike leve (pós-treino)',s:'1',r:'15 min'},
+  ]},
+  { dia:'SÁBADO', nome:'Cardio Isolado', tag:'30–40 min', exercicios:[
+    {n:'Bike Zona 2',s:'1',r:'25–35 min'},
+    {n:'Alongamento global',s:'1',r:'15 min'},
+  ]},
+  { dia:'DOMINGO', nome:'Descanso Total', tag:'Recuperação', exercicios:[
+    {n:'Descanso e recuperação',s:'—',r:'Sem treino'},
+    {n:'Alongamento leve (opcional)',s:'1',r:'15 min'},
+  ]},
+];
+
+const PHASE_DATA = {
+  1:{kcal:'1.600',cardio:'20 min',prot:'175g'},
+  2:{kcal:'1.400',cardio:'35 min',prot:'190g'},
+  3:{kcal:'1.300',cardio:'40 min',prot:'200g'},
+};
+let currentPhase = load('treino_phase',1);
+let logTarget = null;
+
+function setPhase(p, el){
+  currentPhase = p;
+  save('treino_phase', p);
+  document.querySelectorAll('.phase-pill').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  const d = PHASE_DATA[p];
+  document.getElementById('phaseKcal').textContent = d.kcal;
+  document.getElementById('phaseCardio').textContent = d.cardio;
+  document.getElementById('phaseProteina').textContent = d.prot;
+}
+
+function renderTreino(){
+  const ph = PHASE_DATA[currentPhase];
+  document.getElementById('phaseKcal').textContent = ph.kcal;
+  document.getElementById('phaseCardio').textContent = ph.cardio;
+  document.getElementById('phaseProteina').textContent = ph.prot;
+
+  const today = new Date().getDay(); // 0=dom
+  const list = document.getElementById('treinoList');
+  list.innerHTML = TREINOS.map((t,i) => {
+    const logs = load('treino_logs',[]).filter(l=>l.dia===t.dia);
+    const lastLog = logs[logs.length-1];
+    return `
+    <div class="treino-day-card ${i===((today+6)%7)?'open':''}">
+      <div class="treino-day-hd" onclick="this.parentElement.classList.toggle('open')">
+        <div class="treino-day-dia">${t.dia}</div>
+        <div>
+          <div class="treino-day-nome">${t.nome}</div>
+          <div style="font-size:10px;color:var(--text2);">${t.tag}${lastLog?' · <span style="color:var(--green)">Último: '+new Date(lastLog.date).toLocaleDateString('pt-BR')+'</span>':''}</div>
+        </div>
+        <div class="treino-day-tog">▼</div>
+      </div>
+      <div class="treino-day-body">
+        ${t.exercicios.map(ex => `
+          <div class="ex-row">
+            <div>
+              <div class="ex-name">${ex.n}</div>
+              <div class="ex-detail">${ex.s} séries · ${ex.r} reps</div>
+            </div>
+            <div class="ex-series">${getLastLog(t.dia,ex.n)}</div>
+            <button class="ex-log-btn" onclick="openLog('${t.dia}','${ex.n}')">+ Log</button>
+          </div>
+        `).join('')}
+        <div style="padding:12px 16px;">
+          <button class="btn btn-primary btn-sm" onclick="markTreino('${t.dia}')">✓ Marcar treino concluído</button>
+        </div>
       </div>
     </div>`;
   }).join('');
 }
 
-// ══════════════════════════════════════════
-// TREINO DATA
-// ══════════════════════════════════════════
-const TREINOS=[
-  {dia:'SEGUNDA',nome:'Treino A — Peito + Tríceps + Ombro',tag:'55–65 min',exs:[
-    {n:'Bike ergométrica (aquecimento)',s:'1',r:'10 min'},{n:'Supino reto com barra',s:'4',r:'8–12'},{n:'Supino inclinado haltere',s:'3',r:'10–12'},{n:'Crossover / Voador máquina',s:'3',r:'12–15'},{n:'Desenvolvimento ombro máquina',s:'4',r:'10–12'},{n:'Elevação lateral sentado',s:'3',r:'12–15'},{n:'Tríceps polia corda',s:'3',r:'12–15'},{n:'Tríceps francês sentado',s:'3',r:'10–12'},{n:'Bike Zona 2 pós-treino',s:'1',r:'20–40 min'},
-  ]},
-  {dia:'TERÇA',nome:'Treino B — Costas + Bíceps',tag:'55–65 min',exs:[
-    {n:'Bike ergométrica (aquecimento)',s:'1',r:'10 min'},{n:'Puxada frontal polia larga',s:'4',r:'8–12'},{n:'Remada curvada com barra',s:'4',r:'8–12'},{n:'Remada unilateral haltere',s:'3',r:'10–12'},{n:'Pullover polia/máquina',s:'3',r:'12–15'},{n:'Rosca direta com barra',s:'3',r:'10–12'},{n:'Rosca martelo sentado',s:'3',r:'12–15'},{n:'Rosca concentrada',s:'2',r:'12–15'},{n:'Bike Zona 2 pós-treino',s:'1',r:'20–40 min'},
-  ]},
-  {dia:'QUARTA',nome:'Descanso Ativo',tag:'Recuperação',exs:[{n:'Caminhada leve plana',s:'1',r:'20–30 min'},{n:'Mobilidade e alongamento',s:'1',r:'15 min'}]},
-  {dia:'QUINTA',nome:'Treino C — Ombro + Core + Abdômen',tag:'50–60 min',exs:[
-    {n:'Bike ergométrica (aquecimento)',s:'1',r:'8 min'},{n:'Desenvolvimento Arnold sentado',s:'4',r:'10–12'},{n:'Elevação frontal haltere sentado',s:'3',r:'12–15'},{n:'Elevação lateral máquina/cabo',s:'3',r:'12–15'},{n:'Encolhimento trapézio',s:'3',r:'12–15'},{n:'Prancha isométrica',s:'3',r:'45–60s'},{n:'Abdominal supra',s:'3',r:'20–25'},{n:'Elevação de pernas deitado',s:'3',r:'15–20'},{n:'Rotação tronco cabo',s:'3',r:'15 cada'},{n:'Vacuum abdominal',s:'3',r:'30s'},{n:'Bike Zona 2 pós-treino',s:'1',r:'20–40 min'},
-  ]},
-  {dia:'SEXTA',nome:'Treino D — Perna Completa',tag:'55–65 min',exs:[
-    {n:'Bike ergométrica (aquecimento)',s:'1',r:'8 min'},{n:'Leg press 45°',s:'4',r:'12–15'},{n:'Agachamento Smith (Fase 2+)',s:'3',r:'10–12'},{n:'Extensão joelho máquina',s:'4',r:'12–15'},{n:'Mesa flexora deitado',s:'4',r:'12–15'},{n:'Cadeira abdutora',s:'3',r:'15–20'},{n:'Cadeira adutora',s:'3',r:'15–20'},{n:'Glúteo máquina/cabo',s:'3',r:'15 cada'},{n:'Panturrilha sentado',s:'4',r:'15–20'},{n:'Bike leve pós-treino',s:'1',r:'15 min'},
-  ]},
-  {dia:'SÁBADO',nome:'Cardio Isolado',tag:'30–40 min',exs:[{n:'Bike Zona 2',s:'1',r:'25–35 min'},{n:'Alongamento global',s:'1',r:'15 min'}]},
-  {dia:'DOMINGO',nome:'Descanso Total',tag:'Recuperação',exs:[{n:'Descanso e recuperação',s:'—',r:'Sem treino'}]},
-];
-const PHASES={1:{kcal:'1.600',cardio:'20 min',prot:'175g'},2:{kcal:'1.400',cardio:'35 min',prot:'190g'},3:{kcal:'1.300',cardio:'40 min',prot:'200g'}};
-let logTarget=null, curPhase=1;
-function setPhase(p,btn){
-  curPhase=p; save('treino_phase',p);
-  const d=PHASES[p];
-  document.getElementById('phKcal').textContent=d.kcal;
-  document.getElementById('phCardio').textContent=d.cardio;
-  document.getElementById('phProt').textContent=d.prot;
-  if(btn){ document.querySelectorAll('#page-treino .btn').forEach(b=>{ b.classList.remove('btn-g'); b.classList.add('btn-gh'); }); btn.classList.remove('btn-gh'); btn.classList.add('btn-g'); }
+function getLastLog(dia, ex){
+  const logs = load('treino_logs',[]);
+  const match = logs.filter(l=>l.dia===dia&&l.ex===ex);
+  if(!match.length) return '—';
+  const last = match[match.length-1];
+  return `<span style="color:var(--accent);font-size:10px;">${last.peso}kg×${last.reps}</span>`;
 }
-function renderTreino(){
-  const today=new Date().getDay();
-  const list=document.getElementById('treinoList'); if(!list) return;
-  const ph=load('treino_phase',1); curPhase=ph;
-  const pd=PHASES[ph]; document.getElementById('phKcal').textContent=pd.kcal; document.getElementById('phCardio').textContent=pd.cardio; document.getElementById('phProt').textContent=pd.prot;
-  list.innerHTML=TREINOS.map((t,i)=>{
-    const logs=load('treino_logs',[]).filter(l=>l.dia===t.dia&&l.ex!=='__done__');
-    const done=load('treino_logs',[]).filter(l=>l.dia===t.dia&&l.ex==='__done__');
-    const lastDone=done[done.length-1];
-    const isOpen=(i===(today===0?6:(today-1)%7));
-    return `<div class="tr-day ${isOpen?'open':''}">
-      <div class="tr-hd" onclick="this.parentElement.classList.toggle('open')">
-        <div class="tr-dia">${t.dia}</div>
-        <div><div class="tr-nm">${t.nome}</div><div style="font-size:10px;color:var(--text3);">${t.tag}${lastDone?' · <span style="color:var(--green2)">✓ '+new Date(lastDone.date).toLocaleDateString('pt-BR')+'</span>':''}</div></div>
-        <div class="tr-tog">▼</div>
-      </div>
-      <div class="tr-bd">
-        ${t.exs.map(ex=>`<div class="ex-r">
-          <div class="ex-nm">${ex.n}<div style="font-size:10px;color:var(--text3);">${ex.s} séries · ${ex.r}</div></div>
-          <div class="ex-last-val">${getLastLog(t.dia,ex.n)}</div>
-          <button class="ex-lb" onclick="openLog('${t.dia}','${ex.n.replace(/'/g,'')}')">+ log</button>
-        </div>`).join('')}
-        <div style="margin-top:10px;"><button class="btn btn-g btn-sm" onclick="markTreino('${t.dia}')">✓ Treino concluído</button></div>
-      </div>
-    </div>`;
-  }).join('');
+
+function openLog(dia, ex){
+  logTarget = {dia, ex};
+  document.getElementById('logModalTitle').textContent = ex;
+  document.getElementById('logPeso').value = '';
+  document.getElementById('logReps').value = '';
+  document.getElementById('logObs').value = '';
+  document.getElementById('logModal').classList.add('open');
 }
-function getLastLog(dia,ex){ const logs=load('treino_logs',[]).filter(l=>l.dia===dia&&l.ex===ex); if(!logs.length) return '—'; const l=logs[logs.length-1]; return l.peso?l.peso+'kg×'+l.reps:'—'; }
-function openLog(dia,ex){ logTarget={dia,ex}; document.getElementById('logTitle').textContent=ex; document.getElementById('logPeso').value=''; document.getElementById('logReps').value=''; document.getElementById('logObs').value=''; document.getElementById('logModal').classList.add('open'); }
-function closeModal(){ document.getElementById('logModal').classList.remove('open'); logTarget=null; }
+
+function closeModal(){
+  document.getElementById('logModal').classList.remove('open');
+  logTarget = null;
+}
+
 function saveLog(){
   if(!logTarget) return;
-  const logs=load('treino_logs',[]);
-  logs.push({...logTarget,peso:document.getElementById('logPeso').value,reps:document.getElementById('logReps').value,obs:document.getElementById('logObs').value,date:new Date().toISOString()});
-  save('treino_logs',logs); closeModal(); renderTreino(); renderDash();
-}
-function markTreino(dia){ const logs=load('treino_logs',[]); logs.push({dia,ex:'__done__',date:new Date().toISOString()}); save('treino_logs',logs); renderDash(); alert('Treino de '+dia+' registrado! 💪'); }
-document.getElementById('logModal').addEventListener('click',e=>{ if(e.target===document.getElementById('logModal')) closeModal(); });
-
-// ══════════════════════════════════════════
-// DIETA DATA
-// ══════════════════════════════════════════
-const MEALS=[
-  {t:'13:00',n:'🍳 Quebra do Jejum + Pré-Treino',k:560,foods:[{n:'Peito de frango grelhado',q:'200g',k:'220 kcal'},{n:'Arroz branco cozido',q:'4 col. sopa',k:'155 kcal'},{n:'Feijão cozido',q:'1 concha',k:'90 kcal'},{n:'Salada livre',q:'À vontade',k:'~20 kcal'},{n:'Azeite extra virgem',q:'1 fio',k:'40 kcal'}],macros:{p:'52g',c:'55g',g:'8g'},tip:'Refeição mais importante. Vai pro treino logo depois.'},
-  {t:'15:30',n:'🍌 Intra-Treino',k:90,foods:[{n:'Banana média',q:'1 unidade',k:'90 kcal'}],macros:{p:'1g',c:'23g',g:'0g'},tip:'Come no intervalo entre séries.'},
-  {t:'17:30',n:'💪 Pós-Treino — Refeição Anabólica',k:480,foods:[{n:'Carne moída patinho',q:'150g',k:'200 kcal'},{n:'Batata doce cozida',q:'200g',k:'160 kcal'},{n:'Brócolis/couve-flor',q:'À vontade',k:'~25 kcal'},{n:'Ovo inteiro',q:'1 unidade',k:'70 kcal'}],macros:{p:'58g',c:'38g',g:'12g'},tip:'Vem após a bike pós-treino. Fundamental para recuperação muscular.'},
-  {t:'19:30',n:'🥚 Lanche da Tarde',k:250,foods:[{n:'Ovos mexidos/estrelados',q:'3 ovos',k:'210 kcal'},{n:'Tomate picado',q:'1 unidade',k:'22 kcal'},{n:'Café preto (opcional)',q:'1 xícara',k:'0 kcal'}],macros:{p:'21g',c:'6g',g:'15g'},tip:'Simples e saciante. Proteína completa.'},
-  {t:'20:30',n:'🌙 Fecha a Janela',k:220,foods:[{n:'Frango desfiado ou iogurte grego',q:'150g/200g',k:'165 kcal'},{n:'Pepino/cenoura/abobrinha',q:'À vontade',k:'~25 kcal'},{n:'2 castanhas-do-pará',q:'2 unidades',k:'~30 kcal'}],macros:{p:'38g',c:'6g',g:'5g'},tip:'Depois das 21h: apenas água. Isso fecha o protocolo de jejum.'},
-];
-function renderDieta(){
-  const list=document.getElementById('dietaMeals'); if(!list) return;
-  list.innerHTML=MEALS.map((m,i)=>`
-    <div class="meal-card ${i===0?'open':''} card mb14">
-      <div class="meal-hd" onclick="this.parentElement.classList.toggle('open')">
-        <div class="meal-t">${m.t}</div>
-        <div><div class="meal-n">${m.n}</div><div class="meal-k">${m.k} kcal</div></div>
-        <div class="meal-tog">▼</div>
-      </div>
-      <div class="meal-bd">
-        ${m.foods.map(f=>`<div class="food-row"><span class="fn">${f.n}</span><span class="fq">${f.q}</span><span class="fk">${f.k}</span></div>`).join('')}
-        <div class="m-chips"><span class="mch"><b>P:</b> ${m.macros.p}</span><span class="mch"><b>C:</b> ${m.macros.c}</span><span class="mch"><b>G:</b> ${m.macros.g}</span></div>
-        <div style="font-size:10px;color:var(--text3);background:var(--bg);border-left:2px solid var(--green2);border-radius:0 7px 7px 0;padding:7px 10px;margin-top:8px;line-height:1.4;">💡 ${m.tip}</div>
-      </div>
-    </div>`).join('');
+  const logs = load('treino_logs',[]);
+  logs.push({
+    ...logTarget,
+    peso: document.getElementById('logPeso').value,
+    reps: document.getElementById('logReps').value,
+    obs: document.getElementById('logObs').value,
+    date: new Date().toISOString(),
+  });
+  save('treino_logs', logs);
+  closeModal();
+  renderTreino();
+  renderDash();
 }
 
-// ══════════════════════════════════════════
-// MATH DATA
-// ══════════════════════════════════════════
-const MTOPICS=[
-  {w:'S1',m:1,n:'Lógica: proposições, conectivos, tabelas-verdade',meta:'Dominar tabelas-verdade',dica:'30 min teoria + 60 min exercícios. Errar é parte.'},
-  {w:'S2',m:1,n:'Lógica: tautologia, contradição, equivalências',meta:'Resolver 20 exercícios',dica:'Revise S1 por 15 min antes.'},
-  {w:'S3',m:1,n:'Combinações: fatorial, permutação simples',meta:'Entender P(n,r) com clareza',dica:'Contextualize cada problema antes de calcular.'},
-  {w:'S4',m:1,n:'Arranjos e combinações — diferenças e aplicações',meta:'Revisão geral Mês 1',dica:'Faça lista do zero, sem consulta.'},
-  {w:'S5',m:2,n:'Sistemas Lineares: classificação, escalonamento Gauss',meta:'Escalonar 10 sistemas',dica:'Não pule exercícios. Repita.'},
-  {w:'S6',m:2,n:'Sistemas Lineares: sem solução, infinitas soluções',meta:'Resolver como os da prova',dica:'Use os exercícios da lista da faculdade.'},
-  {w:'S7',m:2,n:'Vetores: definição, operações, adição, subtração',meta:'Operar vetores com segurança',dica:'Desenhe no plano cartesiano.'},
-  {w:'S8',m:2,n:'Vetores: módulo, vetor BA, combinação linear',meta:'Revisão geral Mês 2',dica:'Resolva a lista da faculdade do zero.'},
-  {w:'S9',m:3,n:'Grafos: definição, terminologia, grafos simples',meta:'Dominar terminologia',dica:'Material PDF — págs. 229–245.'},
-  {w:'S10',m:3,n:'Grafos: planares, isomorfismo, representação',meta:'Resolver ex. 1–10 do livro',dica:'Págs. 245+ do livro.'},
-  {w:'S11',m:3,n:'Revisão integrada: todos os 5 tópicos',meta:'Zero dúvidas nos 5 tópicos',dica:'18 min por tópico. Lista mista.'},
-  {w:'S12',m:3,n:'Simulado completo + revisão dos erros',meta:'✅ APROVADO NA RECUPERAÇÃO',dica:'Sem consulta, tempo real. Corrija com calma.'},
+function markTreino(dia){
+  const logs = load('treino_logs',[]);
+  logs.push({dia, ex:'__treino_completo__', date: new Date().toISOString()});
+  save('treino_logs', logs);
+  renderDash();
+  alert('Treino de ' + dia + ' registrado! 💪');
+}
+
+document.getElementById('logModal').addEventListener('click', e => {
+  if(e.target === document.getElementById('logModal')) closeModal();
+});
+
+// ═══════════════════════════════════════
+// MATH DATA — 7 semanas até 1ª sem. julho
+// ═══════════════════════════════════════
+const MATH_TOPICS = [
+  {week:'S1', mes:1, topic:'Lógica: proposições, conectivos, tabelas-verdade, tautologia e equivalências', meta:'Dominar tabelas-verdade + equivalências', dica:'Resolva 20 exercícios. Revise S1 por 10 min antes de começar S2.', sessao:[
+    {fase:'0–15min',tag:'rev',label:'Revisão',desc:'Olhe os exercícios do dia anterior (ou pule na S1)'},
+    {fase:'15–50min',tag:'theory',label:'Teoria',desc:'Proposições, conectivos ∧ ∨ → ↔, tabela-verdade, tautologia, contradição, equivalências lógicas'},
+    {fase:'50–80min',tag:'ex',label:'Exercícios',desc:'Resolva sem consultar — se travar 5min, anote e pule'},
+    {fase:'80–90min',tag:'cons',label:'Consolidação',desc:'Anote fórmulas para memorizar e marque os pontos fracos'},
+  ]},
+  {week:'S2', mes:1, topic:'Combinações: fatorial, permutação, arranjos e combinações simples', meta:'Distinguir P, A e C com segurança', dica:'Contextualize cada problema. P = ordem importa; C = ordem não importa.', sessao:[
+    {fase:'0–15min',tag:'rev',label:'Revisão',desc:'5 exercícios de lógica da semana anterior'},
+    {fase:'15–50min',tag:'theory',label:'Teoria',desc:'Princípio multiplicativo, n!, P(n), A(n,r), C(n,r)'},
+    {fase:'50–80min',tag:'ex',label:'Exercícios',desc:'Lista mista: permutação + arranjos + combinações'},
+    {fase:'80–90min',tag:'cons',label:'Consolidação',desc:'Mapa: quando usar cada fórmula'},
+  ]},
+  {week:'S3', mes:2, topic:'Sistemas Lineares: classificação, método de Gauss (escalonamento)', meta:'Escalonar 10 sistemas corretamente', dica:'Não pule exercícios. Repetição é o método aqui.', sessao:[
+    {fase:'0–15min',tag:'rev',label:'Revisão',desc:'2 exercícios de combinações'},
+    {fase:'15–50min',tag:'theory',label:'Teoria',desc:'Classificação SPD/SPI/SI, método de Gauss'},
+    {fase:'50–80min',tag:'ex',label:'Exercícios',desc:'Sistemas 2×2 e 3×3 — 10 sistemas completos'},
+    {fase:'80–90min',tag:'cons',label:'Consolidação',desc:'Checar erros e anotar padrões'},
+  ]},
+  {week:'S4', mes:2, topic:'Sistemas Lineares avançado + introdução a Vetores', meta:'Dominar sistemas impossíveis/indeterminados e operar vetores básicos', dica:'Use os exercícios da lista da faculdade para sistemas. Desenhe os vetores no plano.', sessao:[
+    {fase:'0–15min',tag:'rev',label:'Revisão',desc:'Revisão S3 — escalonamento'},
+    {fase:'15–40min',tag:'theory',label:'Teoria — Sistemas',desc:'Sistemas impossíveis e indeterminados'},
+    {fase:'40–65min',tag:'theory',label:'Teoria — Vetores',desc:'Vetor, módulo, direção, adição e subtração'},
+    {fase:'65–80min',tag:'ex',label:'Exercícios',desc:'Mix: sistemas avançados + vetores básicos'},
+    {fase:'80–90min',tag:'cons',label:'Consolidação',desc:'Anotar as dúvidas que ficaram'},
+  ]},
+  {week:'S5', mes:2, topic:'Vetores: módulo, vetor BA, combinação linear, produto escalar', meta:'Operar vetores com segurança no nível da prova', dica:'Resolva a lista da faculdade do zero com gabarito.', sessao:[
+    {fase:'0–15min',tag:'rev',label:'Revisão',desc:'Revisão S4 — vetores básicos'},
+    {fase:'15–50min',tag:'theory',label:'Teoria',desc:'Módulo |v|, vetor BA = A−B, combinação linear, produto escalar v·w'},
+    {fase:'50–80min',tag:'ex',label:'Exercícios',desc:'Lista completa de vetores — correção com gabarito'},
+    {fase:'80–90min',tag:'cons',label:'Consolidação',desc:'Mapa de erros — o que refazer na S6'},
+  ]},
+  {week:'S6', mes:3, topic:'Grafos: terminologia, grafos conexos, planares, isomorfismo, representação', meta:'Dominar terminologia e resolver exercícios do livro', dica:'Material PDF pág. 229–260. Leia devagar, grafos tem muita definição.', sessao:[
+    {fase:'0–15min',tag:'rev',label:'Revisão',desc:'5 exercícios mistos das semanas anteriores'},
+    {fase:'15–50min',tag:'theory',label:'Teoria',desc:'Vértice, aresta, grau, caminho, conexo, planar, isomorfismo, matriz de adjacência'},
+    {fase:'50–80min',tag:'ex',label:'Exercícios',desc:'Exercícios do livro pág. 229–260'},
+    {fase:'80–90min',tag:'cons',label:'Consolidação',desc:'Glossário de termos de grafos'},
+  ]},
+  {week:'S7', mes:3, topic:'REVISÃO GERAL — todos os temas + simulado completo', meta:'Resolver uma prova completa sem consulta', dica:'Última semana antes da prova. Simule as condições reais. Se errar, anote e revise — não refaça tudo.', sessao:[
+    {fase:'0–20min',tag:'rev',label:'Revisão rápida',desc:'Lógica + Combinações: 5 exercícios de cada'},
+    {fase:'20–45min',tag:'rev',label:'Revisão Sistemas+Vetores',desc:'Escalone 2 sistemas + resolva 3 vetores'},
+    {fase:'45–65min',tag:'rev',label:'Revisão Grafos',desc:'Exercícios de grafos — terminologia e representação'},
+    {fase:'65–85min',tag:'ex',label:'Simulado',desc:'Resolva 10 questões mistas no tempo — cronometre!'},
+    {fase:'85–90min',tag:'cons',label:'Pós-prova',desc:'O que errou? Revise apenas esses pontos. Confie no processo.'},
+  ]},
 ];
-let timerI=null,timerR=false,timerS=90*60;
-const TPHASES=[{at:90*60,l:'Pronto para começar'},{at:75*60,l:'🔵 Revisão rápida (0–15min)'},{at:45*60,l:'📖 Teoria (15–45min)'},{at:10*60,l:'✏️ Exercícios (45–80min)'},{at:0,l:'📝 Consolidação (80–90min)'}];
-function fmtTime(s){ return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
+
+// Timer
+let timerInterval = null;
+let timerRunning = false;
+let timerSeconds = 90 * 60;
+const TIMER_PHASES = [
+  {at:90*60, label:'Pronto para começar'},
+  {at:75*60, label:'🔵 Revisão rápida (0–15min)'},
+  {at:45*60, label:'📖 Novo conteúdo / teoria (15–45min)'},
+  {at:10*60, label:'✏️ Exercícios práticos (45–80min)'},
+  {at:0,     label:'📝 Consolidação (80–90min)'},
+];
+
+function formatTime(s){ return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0'); }
+
 function toggleTimer(){
-  if(timerR){ clearInterval(timerI); timerR=false; document.getElementById('timerBtn').textContent='▶ Continuar'; }
-  else { timerR=true; document.getElementById('timerBtn').textContent='⏸ Pausar'; timerI=setInterval(()=>{ timerS--; document.getElementById('timerDisp').textContent=fmtTime(timerS); const p=TPHASES.find(x=>timerS<=x.at); if(p) document.getElementById('timerPh').textContent=p.l; if(timerS<=0){ clearInterval(timerI); timerR=false; document.getElementById('timerBtn').textContent='▶ Iniciar'; alert('Sessão de 90 min concluída! 🎉'); } },1000); }
+  if(timerRunning){
+    clearInterval(timerInterval);
+    timerRunning = false;
+    document.getElementById('timerBtn').textContent = '▶ Continuar';
+  } else {
+    timerRunning = true;
+    document.getElementById('timerBtn').textContent = '⏸ Pausar';
+    timerInterval = setInterval(()=>{
+      timerSeconds--;
+      document.getElementById('timerDisplay').textContent = formatTime(timerSeconds);
+      const p = TIMER_PHASES.find(x=>timerSeconds<=x.at);
+      if(p) document.getElementById('timerPhase').textContent = p.label;
+      if(timerSeconds<=0){
+        clearInterval(timerInterval);
+        timerRunning=false;
+        document.getElementById('timerBtn').textContent = '▶ Iniciar';
+        alert('Sessão de 90 min concluída! 🎉');
+      }
+    },1000);
+  }
 }
-function resetTimer(){ clearInterval(timerI); timerR=false; timerS=90*60; document.getElementById('timerDisp').textContent='90:00'; document.getElementById('timerPh').textContent='Pronto para começar'; document.getElementById('timerBtn').textContent='▶ Iniciar'; }
-function toggleMathWeek(w){ const d=load('math_weeks',[]); const i=d.indexOf(w); if(i>=0) d.splice(i,1); else d.push(w); save('math_weeks',d); renderMath(); renderDash(); }
+
+function resetTimer(){
+  clearInterval(timerInterval);
+  timerRunning=false;
+  timerSeconds=90*60;
+  document.getElementById('timerDisplay').textContent='90:00';
+  document.getElementById('timerPhase').textContent='Pronto para começar';
+  document.getElementById('timerBtn').textContent='▶ Iniciar';
+}
+
 function renderMath(){
-  const done=load('math_weeks',[]);
-  const wks=document.getElementById('mathWks'); if(!wks) return;
-  wks.innerHTML=Array.from({length:12},(_,i)=>{ const w='S'+(i+1); const dk=done.includes(w); return `<div class="mw-dot ${dk?'done':''}" onclick="toggleMathWeek('${w}')" title="${w}">${i+1}</div>`; }).join('');
-  const tops=document.getElementById('mathTopics'); if(!tops) return;
-  tops.innerHTML=[1,2,3].map(mes=>`
-    <div class="card mb14">
-      <div class="ct" style="color:${mes===1?'var(--orange)':mes===2?'var(--green)':'var(--blue)'}">${mes===1?'📗':mes===2?'📙':'📘'} Mês ${mes} — ${mes===1?'Fundamentos':mes===2?'Aprofundamento':'Integração'}</div>
-      ${MTOPICS.filter(t=>t.m===mes).map(t=>{
-        const dk=done.includes(t.w);
-        return `<div class="math-topic ${dk?'':''}">
-          <div class="mt-hd" onclick="this.parentElement.classList.toggle('open')">
-            <div class="mt-wk">${t.w}</div>
-            <div class="mt-nm" style="${dk?'color:var(--text3);text-decoration:line-through;':''}">${t.n}</div>
-            <div style="font-size:14px;">${dk?'✅':'○'}</div>
+  // countdown to exam (July 7, 2026)
+  const examDate = new Date('2026-07-07');
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const daysLeft = Math.ceil((examDate - today) / (1000*60*60*24));
+  const el = document.getElementById('mathDaysLeft');
+  if(el) el.textContent = daysLeft > 0 ? daysLeft : '🎯';
+
+  // week dots — 7 weeks
+  const mathDone = load('math_weeks',[]);
+  const dots = document.getElementById('mathWeekDots');
+  const lbl = document.getElementById('mathWeekLabel');
+  if(lbl) lbl.textContent = mathDone.length + '/7';
+  dots.innerHTML = Array.from({length:7},(_,i)=>{
+    const w = 'S'+(i+1);
+    const done = mathDone.includes(w);
+    return `<div class="math-day-dot ${done?'done':''}" title="${w}" onclick="toggleMathWeek('${w}')">${i+1}</div>`;
+  }).join('');
+
+  // topics grouped by mes
+  const list = document.getElementById('mathTopicList');
+  const mesTitles = {1:'📗 Bloco 1 — Lógica + Combinações',2:'📙 Bloco 2 — Sistemas + Vetores',3:'📘 Bloco 3 — Grafos + Revisão Final'};
+  const mesColors = {1:'var(--orange)',2:'var(--accent)',3:'var(--blue)'};
+  list.innerHTML = [1,2,3].map(mes=>{
+    const topicos = MATH_TOPICS.filter(t=>t.mes===mes);
+    if(!topicos.length) return '';
+    return `
+    <div class="card" style="margin-bottom:10px;">
+      <div class="card-title" style="color:${mesColors[mes]}">${mesTitles[mes]}</div>
+      ${topicos.map(t=>{
+        const done = mathDone.includes(t.week);
+        return `
+        <div class="math-topic ${done?'done-topic':''}">
+          <div class="math-topic-hd" onclick="this.parentElement.classList.toggle('open')">
+            <div class="math-week-badge">${t.week}</div>
+            <div class="math-topic-name">${t.topic}</div>
+            <div class="math-topic-status">${done?'✅':'○'}</div>
           </div>
-          <div class="mt-bd">
-            <div style="margin-bottom:6px;"><strong style="color:var(--green)">Meta:</strong> ${t.meta}</div>
-            <div style="background:var(--green-l);border-radius:7px;padding:7px 10px;font-size:11px;color:var(--green);margin-bottom:8px;">💡 ${t.dica}</div>
-            <button class="btn ${dk?'btn-gh':'btn-g'} btn-sm" onclick="toggleMathWeek('${t.w}')">${dk?'↩ Desmarcar':'✓ Marcar como concluída'}</button>
+          <div class="math-topic-body">
+            <div style="font-size:12px;margin-bottom:10px;">
+              <strong style="color:var(--accent)">Meta:</strong> <span style="color:var(--text2)">${t.meta}</span>
+            </div>
+            <div style="font-size:12px;margin-bottom:12px;padding:8px 12px;background:rgba(212,245,60,0.05);border-radius:8px;border-left:2px solid var(--accent2);color:var(--text2);">
+              💡 ${t.dica}
+            </div>
+            <div style="font-size:11px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Sessão 90 min</div>
+            ${t.sessao.map(s=>`
+              <div class="study-block">
+                <span class="study-phase-tag sp-${s.tag}">${s.label}</span>
+                <span>${s.fase} — ${s.desc}</span>
+              </div>
+            `).join('')}
+            <div style="margin-top:12px;">
+              <button class="btn ${done?'btn-ghost':'btn-primary'} btn-sm" onclick="toggleMathWeek('${t.week}')">
+                ${done?'↩ Desmarcar':'✓ Marcar como concluída'}
+              </button>
+            </div>
           </div>
         </div>`;
       }).join('')}
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
-// ══════════════════════════════════════════
-// STAR
-// ══════════════════════════════════════════
-function addStar(){
-  const s=document.getElementById('starS').value.trim(),t=document.getElementById('starT').value.trim(),a=document.getElementById('starA').value.trim(),r=document.getElementById('starR').value.trim();
-  if(!s||!t||!a||!r){ alert('Preencha todos os campos STAR.'); return; }
-  const stars=load('star_entries',[]);
-  stars.unshift({id:Date.now(),s,t,a,r,date:new Date().toISOString()});
-  save('star_entries',stars);
-  ['starS','starT','starA','starR'].forEach(id=>document.getElementById(id).value='');
+function toggleMathWeek(w){
+  const done = load('math_weeks',[]);
+  const idx = done.indexOf(w);
+  if(idx>=0) done.splice(idx,1); else done.push(w);
+  save('math_weeks',done);
+  renderMath();
+  renderDash();
+}
+
+// ═══════════════════════════════════════
+// SAÚDE — Cigarro, Cardio SIT, Check-in
+// ═══════════════════════════════════════
+const CARDIO_PHASES = [
+  {
+    num:0, label:'Fase 0 — Base Cardiovascular', weeks:'Semanas 1–2', color:'var(--blue)',
+    desc:'Você ainda não tem base suficiente para SIT. Forçar agora é ineficiente e arriscado (fumante = brônquios mais sensíveis). Prioridade: habituação aeróbica.',
+    protocolo:[
+      '🚲 Bike ergométrica Zona 2 — 25 min após o treino (já tem no plano de treino)',
+      '🚶 Quarta: caminhada 30 min em ritmo que dá pra conversar',
+      '🚲 Sábado: bike leve 30 min + alongamento 15 min',
+      '❌ Sem corrida ainda — respeite os pulmões',
+    ],
+    freq:'3x/semana · 25–30 min',
+    sitTimer: false,
+  },
+  {
+    num:1, label:'Fase 1 — SIT Introdutório', weeks:'Semanas 3–4', color:'var(--orange)',
+    desc:'Condicionamento suficiente para introduzir intervalos. Não é sprint máximo — é esforço alto mas controlado (~80% da frequência máxima percebida).',
+    protocolo:[
+      '🔥 SIT leve: 6 rounds de 20s esforço alto + 40s descanso ativo',
+      '⏱️ Total: ~10 min SIT + 5 min aquecimento + 5 min volta à calma',
+      '🚲 Mantenha Zona 2 nos outros dias (não substitui — complementa)',
+      '🌬️ Se sentir falta de ar intensa, vá para Fase 0 novamente',
+    ],
+    freq:'2x/semana SIT · 2x/semana Zona 2',
+    sitTimer: true, sitRounds: 6, sitWork: 20, sitRest: 40,
+  },
+  {
+    num:2, label:'Fase 2 — SIT Progressivo', weeks:'Semanas 5–6', color:'var(--accent)',
+    desc:'Seu sistema cardiovascular já se adaptou. Aumentamos volume e intensidade. Aqui começa a diferença real no fôlego para escadas e atividades do dia.',
+    protocolo:[
+      '🔥 SIT: 8 rounds de 20s sprint + 40s descanso ativo',
+      '📈 Pode usar bike, corrida leve em terreno plano ou escada',
+      '⚡ Intensidade: 85–90% — ofegante mas mantendo postura',
+      '🚲 1x Zona 2 por semana para recuperação ativa',
+    ],
+    freq:'3x/semana SIT · 1x/semana Zona 2',
+    sitTimer: true, sitRounds: 8, sitWork: 20, sitRest: 40,
+  },
+  {
+    num:3, label:'Fase 3 — SIT Pleno', weeks:'Semana 7+', color:'var(--purple)',
+    desc:'Condicionamento restaurado. Fase de manutenção e melhora contínua. Você já aguenta as escadas — agora é solidificar.',
+    protocolo:[
+      '🔥 SIT: 10 rounds de 20s sprint + 40s descanso ativo',
+      '💪 Pode adicionar variações: escada real, corrida leve, jump',
+      '🚲 1x Zona 2 longa (35–40 min) por semana',
+      '🚭 Meta: usar o pico pós-exercício para reduzir cigarros',
+    ],
+    freq:'3x/semana SIT · 1x/semana Zona 2 longa',
+    sitTimer: true, sitRounds: 10, sitWork: 20, sitRest: 40,
+  },
+];
+
+// Cigarro daily limit plan (semanas desde 19/mai)
+const CIG_PLAN = [
+  {semana:1, limite:15, texto:'Sem 1: máx 15/dia — observe o padrão, não force ainda'},
+  {semana:2, limite:12, texto:'Sem 2: máx 12/dia — elimine o cigarro "automático"'},
+  {semana:3, limite:10, texto:'Sem 3: máx 10/dia — troca o da manhã por água'},
+  {semana:4, limite:8,  texto:'Sem 4: máx 8/dia — pausa entre cigarros aumenta'},
+  {semana:5, limite:6,  texto:'Sem 5: máx 6/dia — você já sente a diferença no treino'},
+  {semana:6, limite:4,  texto:'Sem 6: máx 4/dia — quase lá'},
+  {semana:7, limite:2,  texto:'Sem 7: máx 2/dia — meta final antes da prova'},
+];
+
+function getCurrentCigWeek(){
+  const start = new Date('2026-05-19');
+  const now = new Date();
+  const diff = Math.floor((now - start) / (1000*60*60*24*7));
+  return Math.min(diff, CIG_PLAN.length - 1);
+}
+
+function addCig(delta){
+  const key = 'cig_' + todayKey();
+  const cur = load(key, 0);
+  const nv = Math.max(0, cur + delta);
+  save(key, nv);
+  renderSaude();
+}
+
+let sitInterval = null, sitRunning = false;
+let sitPhase = 'work', sitSecondsLeft = 20, sitCurrentRound = 1, sitTotalRounds = 6, sitWorkSec = 20, sitRestSec = 40;
+
+function setCardioPhase(n, btn){
+  save('cardio_phase', n);
+  document.querySelectorAll('#p-saude .btn-ghost.btn-sm').forEach(b=>b.classList.remove('btn-primary'));
+  if(btn){ btn.classList.remove('btn-ghost'); btn.classList.add('btn-primary'); }
+  renderSaude();
+}
+
+function toggleSIT(){
+  if(sitRunning){
+    clearInterval(sitInterval); sitRunning=false;
+    document.getElementById('sitBtn').textContent='▶ Continuar';
+  } else {
+    sitRunning=true;
+    document.getElementById('sitBtn').textContent='⏸ Pausar';
+    sitInterval=setInterval(()=>{
+      sitSecondsLeft--;
+      updateSITDisplay();
+      if(sitSecondsLeft<=0){
+        if(sitPhase==='work'){
+          sitPhase='rest'; sitSecondsLeft=sitRestSec;
+        } else {
+          sitCurrentRound++;
+          if(sitCurrentRound>sitTotalRounds){
+            clearInterval(sitInterval); sitRunning=false;
+            document.getElementById('sitBtn').textContent='▶ Iniciar';
+            document.getElementById('sitLabel').textContent='✅ Sessão concluída!';
+            document.getElementById('sitRound').textContent='Parabéns!';
+            return;
+          }
+          sitPhase='work'; sitSecondsLeft=sitWorkSec;
+        }
+        updateSITDisplay();
+      }
+    },1000);
+  }
+}
+
+function updateSITDisplay(){
+  const d = document.getElementById('sitDisplay');
+  const lbl = document.getElementById('sitLabel');
+  const rnd = document.getElementById('sitRound');
+  if(!d) return;
+  d.textContent=String(Math.floor(sitSecondsLeft/60)).padStart(2,'0')+':'+String(sitSecondsLeft%60).padStart(2,'0');
+  d.style.color = sitPhase==='work'?'var(--purple)':'var(--green)';
+  lbl.textContent = sitPhase==='work'?'⚡ SPRINT':'😮‍💨 Descanso ativo';
+  rnd.textContent = 'Round '+sitCurrentRound+' de '+sitTotalRounds;
+}
+
+function resetSIT(){
+  clearInterval(sitInterval); sitRunning=false;
+  sitPhase='work'; sitCurrentRound=1; sitSecondsLeft=sitWorkSec;
+  document.getElementById('sitBtn').textContent='▶ Iniciar';
+  updateSITDisplay();
+}
+
+function saveSaudeCheckin(){
+  const esc = document.getElementById('saudeEscada').value;
+  const nota = document.getElementById('saudeNota').value;
+  if(!esc&&!nota) return;
+  const entries = load('saude_checkin',[]);
+  entries.unshift({date:new Date().toISOString(), escada:esc||'—', nota:nota||'—'});
+  save('saude_checkin', entries.slice(0,8));
+  document.getElementById('saudeEscada').value='';
+  document.getElementById('saudeNota').value='';
+  renderSaudeCheckin();
+}
+
+function renderSaudeCheckin(){
+  const entries = load('saude_checkin',[]);
+  const el = document.getElementById('saudeCheckinList');
+  if(!el) return;
+  if(!entries.length){
+    el.innerHTML='<div style="font-size:12px;color:var(--text2);text-align:center;padding:10px;">Nenhum check-in ainda. Teste as escadas!</div>';
+    return;
+  }
+  el.innerHTML=entries.map(e=>`
+    <div style="display:flex;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;">
+      <span style="color:var(--text2);min-width:70px;">${new Date(e.date).toLocaleDateString('pt-BR')}</span>
+      <span style="color:var(--text);">🪜 ${e.escada} lances</span>
+      <span style="color:var(--accent);">⭐ ${e.nota}/10</span>
+    </div>
+  `).join('');
+}
+
+function renderSaude(){
+  // cigarro
+  const cigKey = 'cig_' + todayKey();
+  const cigCount = load(cigKey, 0);
+  const semIdx = getCurrentCigWeek();
+  const plan = CIG_PLAN[semIdx] || CIG_PLAN[CIG_PLAN.length-1];
+  const limite = plan.limite;
+  const pct = Math.min(100, (cigCount/limite)*100);
+
+  document.getElementById('cigCount').textContent = cigCount;
+  document.getElementById('cigCount').style.color = cigCount <= limite*0.5 ? 'var(--green)' : cigCount <= limite ? 'var(--orange)' : 'var(--red)';
+  document.getElementById('cigBar').style.width = pct+'%';
+  document.getElementById('cigBar').style.background = pct<60?'var(--orange)':pct<100?'var(--red)':'#c00';
+  document.getElementById('cigMeta').textContent = 'Meta: ≤'+limite+'/dia';
+  document.getElementById('cigStatus').innerHTML = cigCount===0
+    ? '🌟 Dia limpo até agora!'
+    : cigCount<=limite
+      ? `${cigCount} de ${limite} — ainda dentro da meta`
+      : `⚠️ ${cigCount-limite} acima da meta de hoje`;
+
+  const planEl = document.getElementById('cigPlan');
+  planEl.innerHTML = CIG_PLAN.map((p,i)=>`
+    <div style="padding:4px 0;${i===semIdx?'color:var(--text);':''}">${i===semIdx?'→ ':'&nbsp;&nbsp;'}${p.texto}</div>
+  `).join('');
+
+  // cardio phases
+  const currentPhaseIdx = load('cardio_phase', 0);
+  const phasesEl = document.getElementById('cardioPhases');
+  phasesEl.innerHTML = CARDIO_PHASES.map((p,i)=>`
+    <div style="background:${i===currentPhaseIdx?'rgba('+hexToRgb(p.color)+',0.06)':'var(--card2)'};border:1px solid ${i===currentPhaseIdx?p.color:'var(--border2)'};border-radius:12px;padding:14px;margin-bottom:10px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:${p.color};">${p.label}</div>
+        ${i===currentPhaseIdx?'<span class="pill pill-accent" style="font-size:9px;">ATUAL</span>':''}
+        <span style="margin-left:auto;font-size:10px;color:var(--text2);">${p.weeks}</span>
+      </div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.5;">${p.desc}</div>
+      <div style="font-size:11px;color:var(--text2);">
+        ${p.protocolo.map(line=>`<div style="padding:3px 0;">${line}</div>`).join('')}
+      </div>
+      <div style="margin-top:8px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:${p.color};">${p.freq}</div>
+    </div>
+  `).join('');
+
+  // SIT timer card visibility
+  const sitCard = document.getElementById('sitTimerCard');
+  const activePhase = CARDIO_PHASES[currentPhaseIdx];
+  if(sitCard){
+    sitCard.style.display = activePhase.sitTimer ? 'block' : 'none';
+    if(activePhase.sitTimer){
+      sitTotalRounds = activePhase.sitRounds;
+      sitWorkSec = activePhase.sitWork;
+      sitRestSec = activePhase.sitRest;
+      if(!sitRunning){ sitSecondsLeft=sitWorkSec; sitCurrentRound=1; sitPhase='work'; updateSITDisplay(); }
+    }
+  }
+
+  // phase buttons
+  document.querySelectorAll('#p-saude .btn-ghost.btn-sm, #p-saude .btn-primary.btn-sm').forEach((b,i)=>{
+    if(i<4){
+      b.className = i===currentPhaseIdx ? 'btn btn-primary btn-sm' : 'btn btn-ghost btn-sm';
+    }
+  });
+
+  renderSaudeCheckin();
+}
+
+// util: parse css var color to rgb for alpha
+function hexToRgb(cssVar){
+  const map={'var(--blue)':'60,200,245','var(--orange)':'245,154,60','var(--accent)':'212,245,60','var(--purple)':'184,122,245','var(--red)':'245,92,92','var(--green)':'60,245,160'};
+  return map[cssVar]||'200,200,200';
+}
+
+// ═══════════════════════════════════════
+// DIETA DATA
+// ═══════════════════════════════════════
+const MEALS = [
+  {time:'13:00',name:'🍳 Quebra do Jejum + Pré-Treino',kcal:560,foods:[
+    {n:'Peito de frango grelhado',q:'200g',k:'220 kcal'},
+    {n:'Arroz branco cozido',q:'4 col. sopa',k:'155 kcal'},
+    {n:'Feijão cozido',q:'1 concha',k:'90 kcal'},
+    {n:'Salada livre',q:'À vontade',k:'~20 kcal'},
+    {n:'Azeite extra virgem',q:'1 fio (5ml)',k:'40 kcal'},
+  ],macros:{p:'52g',c:'55g',g:'8g'},tip:'Refeição mais importante. Vai pro treino logo depois — não pule nunca.'},
+  {time:'15:30',name:'🍌 Intra-Treino',kcal:90,foods:[
+    {n:'Banana média',q:'1 unidade',k:'90 kcal'},
+  ],macros:{p:'1g',c:'23g',g:'0g'},tip:'Come durante o treino ou no intervalo entre séries.'},
+  {time:'17:30',name:'💪 Pós-Treino — Refeição Anabólica',kcal:480,foods:[
+    {n:'Carne moída patinho',q:'150g',k:'200 kcal'},
+    {n:'Batata doce cozida',q:'200g',k:'160 kcal'},
+    {n:'Brócolis / couve-flor',q:'À vontade',k:'~25 kcal'},
+    {n:'Ovo inteiro cozido',q:'1 unidade',k:'70 kcal'},
+  ],macros:{p:'58g',c:'38g',g:'12g'},tip:'Vem logo após a bike pós-treino. Fundamental pra recuperação muscular.'},
+  {time:'19:30',name:'🥚 Lanche da Tarde',kcal:250,foods:[
+    {n:'Ovos mexidos/estrelados',q:'3 ovos',k:'210 kcal'},
+    {n:'Tomate picado',q:'1 unidade',k:'22 kcal'},
+    {n:'Café preto (opcional)',q:'1 xícara',k:'0 kcal'},
+  ],macros:{p:'21g',c:'6g',g:'15g'},tip:'Simples e saciante. Ovos são proteína completa e barata.'},
+  {time:'20:30',name:'🌙 Fecha a Janela',kcal:220,foods:[
+    {n:'Frango desfiado ou iogurte grego',q:'150g / 200g',k:'165 kcal'},
+    {n:'Pepino / cenoura / abobrinha',q:'À vontade',k:'~25 kcal'},
+    {n:'2 castanhas-do-pará',q:'2 unidades',k:'~30 kcal'},
+  ],macros:{p:'38g',c:'6g',g:'5g'},tip:'Depois das 21h: NADA além de água. Isso é o jejum.'},
+];
+
+function renderDieta(){
+  const list = document.getElementById('dietaMeals');
+  list.innerHTML = MEALS.map((m,i) => `
+    <div class="meal-card ${i===0?'open':''}">
+      <div class="meal-hd" onclick="this.parentElement.classList.toggle('open')">
+        <div class="meal-time-badge">${m.time}</div>
+        <div class="meal-info">
+          <div class="meal-name-d">${m.name}</div>
+          <div class="meal-kcal-d">${m.kcal} kcal</div>
+        </div>
+        <div class="meal-tog">▼</div>
+      </div>
+      <div class="meal-body-d">
+        ${m.foods.map(f=>`
+          <div class="food-line">
+            <span class="food-n">${f.n}</span>
+            <span class="food-q">${f.q}</span>
+            <span class="food-k">${f.k}</span>
+          </div>
+        `).join('')}
+        <div class="macro-chips">
+          <span class="mchip"><b>P:</b> ${m.macros.p}</span>
+          <span class="mchip"><b>C:</b> ${m.macros.c}</span>
+          <span class="mchip"><b>G:</b> ${m.macros.g}</span>
+        </div>
+        <div style="font-size:11px;color:var(--text2);background:rgba(212,245,60,0.04);border-left:2px solid var(--accent2);border-radius:0 8px 8px 0;padding:8px 12px;margin-top:10px;line-height:1.5;">
+          💡 ${m.tip}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════
+// CARREIRA DATA
+// ═══════════════════════════════════════
+const PILLARS = [
+  {num:'01',name:'Big Picture Thinking',desc:`Staff não é sobre resolver tarefas — é sobre identificar quais têm mais impacto.\n\n• Das suas tarefas batch/monitoramento, qual gera mais dor quando falha?\n• Proponha iniciativas que ninguém pediu mas que resolvem problemas reais.\n• Defina seu North Star: o que você construiria na Kyndryl para gerar mais valor?`},
+  {num:'02',name:'Execução de Projetos Ambíguos',desc:`A diferença entre Senior e Staff: Senior recebe projetos definidos. Staff pega problemas sem caminho — e cria o caminho.\n\n• Antes de codar: documente, analise tradeoffs e defina métricas de sucesso.\n• Escreva um Strategy Doc para cada projeto relevante.\n• Defina ANTES como vai medir o sucesso.`},
+  {num:'03',name:'Level Up do Time',desc:`Impactar seus colegas positivamente é mais importante do que você mesmo executar.\n\n• Code reviews que ensinam: explique o porquê, não só o erro.\n• Documentação que elimina esforço cognitivo para novos engenheiros.\n• Mentore pelo menos 1 pessoa a cada 6 meses.`},
+  {num:'04',name:'Spec Driven Development',desc:`Qualquer um aprende a fazer um prompt. Especificar bem é a habilidade escassa e valiosa.\n\nFluxo: Intenção → Geração → Review (YOU decide) → Design → Implementação\n\n• Antes de qualquer automação, escreva a spec primeiro.\n• Exemplo batch: "O script vai checar jobs X, Y, Z. Se falhar, alerta Slack. Se travar >30min, escala on-call.".\n• Sem spec escrita = sem evidência de impacto = sem case de promoção.`},
+];
+
+function renderCarreira(){
+  const list = document.getElementById('careerPillars');
+  list.innerHTML = PILLARS.map((p,i) => `
+    <div class="career-pillar ${i===0?'open':''}">
+      <div class="career-pillar-hd" onclick="this.parentElement.classList.toggle('open')">
+        <div class="pillar-num">${p.num}</div>
+        <div class="pillar-name">${p.name}</div>
+        <div class="career-pillar-hd-tog">▼</div>
+      </div>
+      <div class="career-pillar-body">${p.desc.replace(/\n/g,'<br>')}</div>
+    </div>
+  `).join('');
+
+  // STAR entries
   renderStar();
 }
-function deleteStar(id){ if(!confirm('Excluir?')) return; save('star_entries',load('star_entries',[]).filter(x=>x.id!=id)); renderStar(); }
-function renderStar(){
-  const stars=load('star_entries',[]); const list=document.getElementById('starList'); if(!list) return;
-  if(!stars.length){ list.innerHTML='<div style="font-size:12px;color:var(--text3);text-align:center;padding:12px;">Nenhuma entrada STAR ainda.</div>'; return; }
-  list.innerHTML=stars.map(s=>`
-    <div class="star-entry">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
-        <div class="star-date">${new Date(s.date).toLocaleDateString('pt-BR')}</div>
-        <button class="ib del btn-sm" onclick="deleteStar(${s.id})">✕</button>
-      </div>
-      <div class="star-body"><strong style="color:var(--blue)">S:</strong> ${s.s}<br><strong style="color:var(--orange)">T:</strong> ${s.t}<br><strong style="color:var(--green)">A:</strong> ${s.a}<br><strong style="color:var(--rose)">R:</strong> ${s.r}</div>
-    </div>`).join('');
+
+function addStar(){
+  const s = document.getElementById('starS').value.trim();
+  const t = document.getElementById('starT').value.trim();
+  const a = document.getElementById('starA').value.trim();
+  const r = document.getElementById('starR').value.trim();
+  if(!s||!t||!a||!r){ alert('Preencha todos os campos STAR.'); return; }
+  const stars = load('star_entries',[]);
+  stars.unshift({id:Date.now(),s,t,a,r,date:new Date().toISOString()});
+  save('star_entries',stars);
+  document.getElementById('starS').value='';
+  document.getElementById('starT').value='';
+  document.getElementById('starA').value='';
+  document.getElementById('starR').value='';
+  renderStar();
 }
+
+function deleteStar(id){
+  if(!confirm('Excluir entrada STAR?')) return;
+  save('star_entries', load('star_entries',[]).filter(x=>x.id!=id));
+  renderStar();
+}
+
+function renderStar(){
+  const stars = load('star_entries',[]);
+  const list = document.getElementById('starList');
+  if(!stars.length){ list.innerHTML='<div style="font-size:12px;color:var(--text2);text-align:center;padding:12px;">Nenhuma entrada STAR ainda.</div>'; return; }
+  list.innerHTML = stars.map(s=>`
+    <div class="star-entry">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+        <div class="star-entry-title">${new Date(s.date).toLocaleDateString('pt-BR')}</div>
+        <button class="icon-btn del btn-sm" onclick="deleteStar(${s.id})">✕</button>
+      </div>
+      <div class="star-entry-text">
+        <strong style="color:var(--blue)">S:</strong> ${s.s}<br>
+        <strong style="color:var(--orange)">T:</strong> ${s.t}<br>
+        <strong style="color:var(--accent)">A:</strong> ${s.a}<br>
+        <strong style="color:var(--green)">R:</strong> ${s.r}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════
+// AUTO-UPDATE
+// ═══════════════════════════════════════
+setInterval(()=>{
+  if(document.getElementById('p-dash').classList.contains('active')) renderDash();
+},60000);
 </script>
 </body>
 </html>
